@@ -2,62 +2,58 @@ const enemyTypes = [
   {
     name: "Rabbit",
     emoji: "🐰",
-    health: 35,
-    damage: 7,
-    speed: 1.4,
-    xp: 25,
+    health: 30,
+    damage: 5,
+    speed: 0.8,
+    xp: 20,
     coins: 5
   },
   {
     name: "Chicken",
     emoji: "🐔",
-    health: 45,
-    damage: 9,
-    speed: 1.7,
-    xp: 30,
+    health: 40,
+    damage: 7,
+    speed: 0.9,
+    xp: 25,
     coins: 7
   },
   {
     name: "Fox",
     emoji: "🦊",
-    health: 70,
-    damage: 13,
-    speed: 2,
-    xp: 50,
+    health: 65,
+    damage: 10,
+    speed: 1,
+    xp: 45,
     coins: 12
   },
   {
     name: "Wolf",
     emoji: "🐺",
-    health: 100,
-    damage: 18,
-    speed: 2.2,
-    xp: 75,
-    coins: 20
+    health: 90,
+    damage: 14,
+    speed: 1.1,
+    xp: 65,
+    coins: 18
   },
   {
     name: "Bear",
     emoji: "🐻",
-    health: 180,
-    damage: 25,
-    speed: 1.2,
-    xp: 130,
-    coins: 40
+    health: 150,
+    damage: 20,
+    speed: 0.7,
+    xp: 100,
+    coins: 30
   }
 ];
 
 class Enemy {
-  constructor(type) {
+  constructor(type, x) {
     this.type = type;
 
     this.width = 65;
     this.height = 65;
 
-    this.x =
-      Math.random() < 0.5
-        ? -this.width
-        : CONFIG.width + this.width;
-
+    this.x = x;
     this.y = CONFIG.ground - this.height;
 
     this.health = type.health;
@@ -73,11 +69,13 @@ class Enemy {
   update(player) {
     const distance = player.x - this.x;
 
-    if (Math.abs(distance) > 70) {
+    // Enemy only approaches if reasonably close.
+    // This prevents enemies from dragging the camera around.
+    if (Math.abs(distance) > 75) {
       this.x += Math.sign(distance) * this.speed;
     } else if (this.attackCooldown <= 0) {
       player.takeDamage(this.damage);
-      this.attackCooldown = 70;
+      this.attackCooldown = 80;
     }
 
     if (this.attackCooldown > 0) {
@@ -103,36 +101,54 @@ class Enemy {
     player.coins += this.type.coins;
 
     showMessage(
-      `💥 ${this.type.name} defeated! +${this.type.xp} XP +${this.type.coins} 🪙`
+      `💥 ${this.type.name} defeated! +${this.type.xp} XP`
     );
 
-    enemies = enemies.filter(e => e !== this);
+    enemies = enemies.filter(enemy => enemy !== this);
   }
 
-  draw(ctx) {
+  draw(ctx, cameraX) {
+    const screenX = this.x - cameraX;
+
+    // Don't draw things far outside the camera
+    if (
+      screenX < -100 ||
+      screenX > CONFIG.width + 100
+    ) {
+      return;
+    }
+
     ctx.save();
 
     if (this.hitFlash > 0) {
-      ctx.globalAlpha = 0.45;
+      ctx.globalAlpha = 0.5;
     }
 
     ctx.font = "55px Arial";
     ctx.textAlign = "center";
+
     ctx.fillText(
       this.type.emoji,
-      this.x + this.width / 2,
-      this.y + 52
+      screenX + this.width / 2,
+      this.y + 53
     );
 
-    // health bar
-    ctx.fillStyle = "#111";
-    ctx.fillRect(this.x, this.y - 12, this.width, 7);
+    // Health bar
+    ctx.fillStyle = "#222";
+    ctx.fillRect(
+      screenX,
+      this.y - 12,
+      this.width,
+      7
+    );
 
     ctx.fillStyle = "#ef4444";
+
     ctx.fillRect(
-      this.x,
+      screenX,
       this.y - 12,
-      this.width * Math.max(0, this.health / this.maxHealth),
+      this.width *
+        Math.max(0, this.health / this.maxHealth),
       7
     );
 
