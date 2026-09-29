@@ -1,5 +1,7 @@
 * {
   box-sizing: border-box;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 body {
@@ -8,87 +10,116 @@ body {
   color: white;
   font-family: Arial, sans-serif;
   text-align: center;
+  overflow-x: hidden;
 }
 
 #game {
+  width: 100%;
   max-width: 1000px;
   margin: auto;
-  padding: 15px;
+  padding: 10px;
 }
 
 h1 {
+  margin: 5px;
   color: #ffd43b;
-  margin: 8px;
+  font-size: 30px;
 }
 
 .stats {
   display: flex;
   justify-content: center;
-  gap: 30px;
-  font-size: 20px;
-  margin-bottom: 10px;
+  gap: 25px;
+  margin: 8px;
+  font-size: 18px;
 }
 
 canvas {
+  display: block;
   width: 100%;
   max-width: 900px;
+  height: auto;
+  margin: auto;
+
   border: 4px solid #ffd43b;
   border-radius: 12px;
-  background: #78c850;
-  image-rendering: pixelated;
+
+  background: #79c9ff;
+
+  touch-action: none;
 }
 
 #controls {
   display: flex;
   justify-content: center;
-  gap: 10px;
-  margin: 12px;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 12px auto;
+
+  max-width: 700px;
 }
 
-button {
+#controls button {
+  min-width: 65px;
+  min-height: 55px;
+
+  border: none;
+  border-radius: 12px;
+
   background: #ffd43b;
-  border: 0;
-  border-radius: 10px;
-  padding: 13px 20px;
-  font-size: 18px;
+  color: #222;
+
+  font-size: 20px;
   font-weight: bold;
-  cursor: pointer;
+
+  touch-action: none;
 }
 
-button:hover {
-  background: #ffec70;
+#controls button:active {
+  transform: scale(0.92);
+  background: #ffef86;
 }
 
 #upgradePanel {
+  margin-top: 10px;
+  padding: 12px;
+
   background: #1d293b;
   border-radius: 12px;
-  padding: 15px;
+}
+
+#upgradePanel h2 {
+  margin: 5px;
 }
 
 #upgrades {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
 }
 
 .upgrade {
   background: #334155;
-  padding: 12px;
   border-radius: 10px;
-  min-width: 150px;
+  padding: 10px;
+  min-width: 145px;
 }
 
 .upgrade button {
+  margin-top: 5px;
+  border: none;
+  border-radius: 8px;
   padding: 8px 12px;
-  font-size: 14px;
+
+  background: #ffd43b;
+  font-weight: bold;
 }
 
 #message {
   min-height: 30px;
+  margin: 8px;
+
   color: #ffd43b;
-  font-size: 20px;
   font-weight: bold;
-  margin: 10px;
 }
