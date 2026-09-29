@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Frog Evolution Online</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    overflow: hidden;
+    background: #071409;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+#ui {
+    position: fixed;
+    z-index: 10;
+    top: 12px;
+    left: 12px;
+
+    width: 300px;
+
+    padding: 15px;
+
+    border-radius: 15px;
+
+    background:
+        rgba(0,0,0,.72);
+
+    border:
+        2px solid #58ff6b;
+}
+
+h1 {
+    margin-top: 0;
+
+    color: #64ff76;
+}
+
+.bar {
+    height: 12px;
+
+    margin: 5px 0 10px;
+
+    background: #222;
+
+    border-radius: 20px;
+
+    overflow: hidden;
+}
+
+#hp {
+    width: 100%;
+    height: 100%;
+
+    background: #ff4141;
+}
+
+#xp {
+    width: 0%;
+    height: 100%;
+
+    background: #36a7ff;
+}
+
+#clanPanel {
+
+    position: fixed;
+
+    right: 12px;
+    top: 12px;
+
+    z-index: 10;
+
+    width: 280px;
+
+    padding: 15px;
+
+    background:
+        rgba(0,0,0,.72);
+
+    border-radius: 15px;
+
+    border:
+        2px solid #ffd84d;
+}
+
+button,
+input {
+
+    width: 100%;
+
+    margin-top: 6px;
+
+    padding: 9px;
+
+    border: 0;
+
+    border-radius: 8px;
+}
+
+button {
+    cursor: pointer;
+
+    background: #54e866;
+
+    font-weight: bold;
+}
+
+#chat {
+
+    height: 100px;
+
+    overflow-y: auto;
+
+    background: #111;
+
+    margin-top: 8px;
+
+    padding: 7px;
+
+    font-size: 12px;
+}
+
+#controls {
+
+    position: fixed;
+
+    bottom: 12px;
+    left: 12px;
+
+    z-index: 10;
+
+    padding: 10px;
+
+    background:
+        rgba(0,0,0,.6);
+
+    border-radius: 10px;
+
+    font-size: 13px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="ui">
+
+<h1>🐸 Frog Evolution</h1>
+
+<div>
+World:
+<span id="world">Emerald Swamp</span>
+</div>
+
+<div>
+Evolution:
+<span id="evolution">
+Tiny Frog
+</span>
+</div>
+
+<br>
+
+<div>❤️ Health</div>
+
+<div class="bar">
+<div id="hp"></div>
+</div>
+
+<div>
+⭐ Level:
+<span id="level">1</span>
+</div>
+
+<div>
+⚔️ Attack:
+<span id="attack">10</span>
+</div>
+
+<div>
+XP:
+<span id="xpText">
+0 / 100
+</span>
+</div>
+
+<div class="bar">
+<div id="xp"></div>
+</div>
+
+</div>
+
+
+<div id="clanPanel">
+
+<h2>🏰 Clan</h2>
+
+<div id="clanInfo">
+No clan
+</div>
+
+<input
+    id="clanName"
+    placeholder="Clan name"
+>
+
+<button onclick="createClan()">
+Create Clan
+</button>
+
+<input
+    id="clanId"
+    placeholder="Clan ID"
+>
+
+<button onclick="joinClan()">
+Join Clan
+</button>
+
+<button onclick="leaveClan()">
+Leave Clan
+</button>
+
+<div id="chat"></div>
+
+<input
+    id="chatInput"
+    placeholder="Clan message..."
+    onkeydown="
+        if(event.key === 'Enter')
+            sendChat()
+    "
+>
+
+</div>
+
+
+<div id="controls">
+
+WASD = Move<br>
+Mouse drag = Camera<br>
+SPACE = Attack<br>
+1 = Swamp<br>
+2 = Volcano<br>
+3 = Crystal Ocean
+
+</div>
+
+
+<script src="
+https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.min.js
+"></script>
+
+<script>
+
+const scene =
+    new THREE.Scene();
+
+scene.background =
+    new THREE.Color(0x071b0b);
+
+const camera =
+    new THREE.PerspectiveCamera(
+        70,
+        innerWidth / innerHeight,
+        .1,
+        500
+    );
+
+const renderer =
+    new THREE.WebGLRenderer({
+        antialias: true
+    });
+
+renderer.setSize(
+    innerWidth,
+    innerHeight
+);
+
+renderer.shadowMap.enabled = true;
+
+document.body.appendChild(
+    renderer.domElement
+);
+
+
+/* LIGHTING */
+
+scene.add(
+    new THREE.HemisphereLight(
+        0x9cffaa,
+        0x172015,
+        2
+    )
+);
+
+const sun =
+    new THREE.DirectionalLight(
+        0xffffff,
+        2
+    );
+
+sun.position.set(
+    20,
+    40,
+    20
+);
+
+scene.add(sun);
+
+
+/* NETWORK */
+
+const protocol =
+    location.protocol === "https:"
+        ? "wss:"
+        : "ws:";
+
+const socket =
+    new WebSocket(
+        protocol +
+        "//" +
+        location.host
+    );
+
+
+/* GAME DATA */
+
+let myId = null;
+
+let me = {
+    x: 0,
+    y: 1,
+    z: 0
+};
+
+let players = {};
+
+let playerMeshes = {};
+
+let keys = {};
+
+let yaw = 0;
+
+let pitch = .45;
+
+let world = 1;
+
+
+/* FROG */
+
+function makeFrog(color = 0x44dd55) {
+
+    const frog =
+        new THREE.Group();
+
+    const body =
+        new THREE.Mesh(
+            new THREE.SphereGeometry(
+                1,
+                20,
+                20
+            ),
+
+            new THREE.MeshStandardMaterial({
+                color
+            })
+        );
+
+    body.scale.set(
+        1.25,
+        .75,
+        1
+    );
+
+    frog.add(body);
+
+
+    for (const side of [-1, 1]) {
+
+        const eye =
+            new THREE.Mesh(
+                new THREE.SphereGeometry(
+                    .35,
+                    16,
+                    16
+                ),
+
+                new THREE.MeshStandardMaterial({
+                    color: 0xbaffba
+                })
+            );
+
+        eye.position.set(
+            side * .45,
+            .45,
+            -.25
+        );
+
+        frog.add(eye);
+
+
+        const pupil =
+            new THREE.Mesh(
+                new THREE.SphereGeometry(
+                    .14,
+                    12,
+                    12
+                ),
+
+                new THREE.MeshStandardMaterial({
+                    color: 0x000000
+                })
+            );
+
+        pupil.position.set(
+            side * .45,
+            .48,
+            -.56
+        );
+
+        frog.add(pupil);
+    }
+
+    return frog;
+}
+
+
+/* WORLD */
+
+function buildWorld() {
+
+    const old =
+        scene.getObjectByName(
+            "ground"
+        );
+
+    if (old)
+        scene.remove(old);
+
+    let color;
+
+    if (world === 1)
+        color = 0x164b20;
+
+    if (world === 2)
+        color = 0x4b1712;
+
+    if (world === 3)
+        color = 0x102f55;
+
+    const ground =
+        new THREE.Mesh(
+            new THREE.PlaneGeometry(
+                150,
+                150
+            ),
+
+            new THREE.MeshStandardMaterial({
+                color
+            })
+        );
+
+    ground.name = "ground";
+
+    ground.rotation.x =
+        -Math.PI / 2;
+
+    scene.add(ground);
+
+    document.getElementById(
+        "world"
+    ).textContent =
+        world === 1
+            ? "Emerald Swamp"
+            : world === 2
+                ? "Volcanic Marsh"
+                : "Crystal Ocean";
+}
+
+buildWorld();
+
+
+/* INPUT */
+
+window.addEventListener(
+    "keydown",
+    e => {
+
+        keys[e.key.toLowerCase()] = true;
+
+        if (e.code === "Space") {
+
+            socket.send(
+                JSON.stringify({
+                    type: "attack"
+                })
+            );
+        }
+
+        if (e.key === "1")
+            changeWorld(1);
+
+        if (e.key === "2")
+            changeWorld(2);
+
+        if (e.key === "3")
+            changeWorld(3);
+    }
+);
+
+window.addEventListener(
+    "keyup",
+    e => {
+        keys[e.key.toLowerCase()] = false;
+    }
+);
+
+
+/* CAMERA */
+
+let mouseDown = false;
+
+let lastX = 0;
+let lastY = 0;
+
+window.addEventListener(
+    "mousedown",
+    e => {
+
+        mouseDown = true;
+
+        lastX = e.clientX;
+        lastY = e.clientY;
+    }
+);
+
+window.addEventListener(
+    "mouseup",
+    () => {
+        mouseDown = false;
+    }
+);
+
+window.addEventListener(
+    "mousemove",
+    e => {
+
+        if (!mouseDown)
+            return;
+
+        yaw -=
+            (e.clientX - lastX)
+            * .005;
+
+        pitch -=
+            (e.clientY - lastY)
+            * .005;
+
+        pitch =
+            Math.max(
+                .15,
+                Math.min(
+                    1.4,
+                    pitch
+                )
+            );
+
+        lastX = e.clientX;
+        lastY = e.clientY;
+    }
+);
+
+
+/* NETWORK STATE */
+
+socket.addEventListener(
+    "message",
+    event => {
+
+        const data =
+            JSON.parse(event.data);
+
+        if (data.type === "welcome") {
+
+            myId =
+                data.player.id;
+
+            me =
+                data.player;
+
+            players[myId] =
+                data.player;
+
+            updateUI();
+        }
+
+
+        if (data.type === "state") {
+
+            me =
+                data.self;
+
+            players = {};
+
+            for (
+                const p of data.players
+            ) {
+                players[p.id] = p;
+            }
+
+            updateUI();
+
+            updateClan(
+                data.clan
+            );
+        }
+
+
+        if (data.type === "playerLeft") {
+
+            if (
+                playerMeshes[data.id]
+            ) {
+
+                scene.remove(
+                    playerMeshes[data.id]
+                );
+
+                delete playerMeshes[data.id];
+            }
+        }
+
+
+        if (data.type === "clanChat") {
+
+            const chat =
+                document.getElementById(
+                    "chat"
+                );
+
+            chat.innerHTML +=
+                `<div>
+                    <b>${escapeHTML(data.name)}</b>:
+                    ${escapeHTML(data.message)}
+                </div>`;
+
+            chat.scrollTop =
+                chat.scrollHeight;
+        }
+    }
+);
+
+
+/* PLAYER RENDERING */
+
+function updatePlayers() {
+
+    for (
+        const id in players
+    ) {
+
+        if (id === myId)
+            continue;
+
+        const p =
+            players[id];
+
+        if (!playerMeshes[id]) {
+
+            playerMeshes[id] =
+                makeFrog(
+                    0x33aaff
+                );
+
+            scene.add(
+                playerMeshes[id]
+            );
+        }
+
+        const mesh =
+            playerMeshes[id];
+
+        mesh.position.lerp(
+            new THREE.Vector3(
+                p.x,
+                p.y,
+                p.z
+            ),
+            .3
+        );
+
+        mesh.scale.setScalar(
+            p.level >= 10
+                ? 2
+                : p.level >= 6
+                    ? 1.5
+                    : 1
+        );
+    }
+}
+
+
+/* MOVEMENT */
+
+let lastSent = 0;
+
+function updateMovement(delta) {
+
+    let forward = 0;
+    let side = 0;
+
+    if (
+        keys["w"] ||
+        keys["arrowup"]
+    )
+        forward++;
+
+    if (
+        keys["s"] ||
+        keys["arrowdown"]
+    )
+        forward--;
+
+    if (
+        keys["a"] ||
+        keys["arrowleft"]
+    )
+        side--;
+
+    if (
+        keys["d"] ||
+        keys["arrowright"]
+    )
+        side++;
+
+    if (
+        forward === 0 &&
+        side === 0
+    )
+        return;
+
+    const direction =
+        new THREE.Vector3(
+            side,
+            0,
+            forward
+        );
+
+    direction.normalize();
+
+    direction.applyAxisAngle(
+        new THREE.Vector3(
+            0,
+            1,
+            0
+        ),
+        yaw
+    );
+
+    me.x +=
+        direction.x *
+        me.speed *
+        delta;
+
+    me.z +=
+        direction.z *
+        me.speed *
+        delta;
+
+    me.x =
+        Math.max(
+            -70,
+            Math.min(
+                70,
+                me.x
+            )
+        );
+
+    me.z =
+        Math.max(
+            -70,
+            Math.min(
+                70,
+                me.z
+            )
+        );
+
+    const now =
+        Date.now();
+
+    if (
+        now - lastSent > 50
+    ) {
+
+        socket.send(
+            JSON.stringify({
+                type: "move",
+
+                x: me.x,
+                y: me.y,
+                z: me.z
+            })
+        );
+
+        lastSent = now;
+    }
+}
+
+
+/* CAMERA */
+
+function updateCamera() {
+
+    const distance = 12;
+
+    camera.position.set(
+        me.x +
+            Math.sin(yaw) *
+            Math.cos(pitch) *
+            distance,
+
+        me.y +
+            Math.sin(pitch) *
+            distance,
+
+        me.z +
+            Math.cos(yaw) *
+            Math.cos(pitch) *
+            distance
+    );
+
+    camera.lookAt(
+        me.x,
+        me.y + .5,
+        me.z
+    );
+}
+
+
+/* WORLDS */
+
+function changeWorld(number) {
+
+    world = number;
+
+    socket.send(
+        JSON.stringify({
+            type: "world",
+            world: number
+        })
+    );
+
+    buildWorld();
+}
+
+
+/* CLANS */
+
+function createClan() {
+
+    const name =
+        document.getElementById(
+            "clanName"
+        ).value.trim();
+
+    if (!name)
+        return;
+
+    socket.send(
+        JSON.stringify({
+            type: "createClan",
+            name
+        })
+    );
+}
+
+
+function joinClan() {
+
+    const id =
+        document.getElementById(
+            "clanId"
+        ).value.trim();
+
+    if (!id)
+        return;
+
+    socket.send(
+        JSON.stringify({
+            type: "joinClan",
+            clanId: id
+        })
+    );
+}
+
+
+function leaveClan() {
+
+    socket.send(
+        JSON.stringify({
+            type: "leaveClan"
+        })
+    );
+}
+
+
+function sendChat() {
+
+    const input =
+        document.getElementById(
+            "chatInput"
+        );
+
+    const message =
+        input.value.trim();
+
+    if (!message)
+        return;
+
+    socket.send(
+        JSON.stringify({
+            type: "clanChat",
+            message
+        })
+    );
+
+    input.value = "";
+}
+
+
+function updateClan(clan) {
+
+    const element =
+        document.getElementById(
+            "clanInfo"
+        );
+
+    if (!clan) {
+
+        element.innerHTML =
+            "You are not in a clan.";
+
+        return;
+    }
+
+    element.innerHTML = `
+        <b>${escapeHTML(clan.name)}</b><br>
+        Clan Level: ${clan.level}<br>
+        Members: ${clan.members.length}<br>
+        Clan ID:<br>
+        <small>${clan.id}</small>
+    `;
+}
+
+
+function escapeHTML(text) {
+
+    return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+
+/* UI */
+
+function updateUI() {
+
+    if (!me)
+        return;
+
+    document.getElementById(
+        "level"
+    ).textContent =
+        me.level;
+
+    document.getElementById(
+        "attack"
+    ).textContent =
+        me.attack;
+
+    document.getElementById(
+        "evolution"
+    ).textContent =
+        me.evolution;
+
+    document.getElementById(
+        "xpText"
+    ).textContent =
+        `${me.xp || 0} / ${me.xpNeeded || 100}`;
+
+    document.getElementById(
+        "xp"
+    ).style.width =
+        (
+            (me.xp || 0) /
+            (me.xpNeeded || 100) *
+            100
+        ) + "%";
+
+    document.getElementById(
+        "hp"
+    ).style.width =
+        (
+            me.health /
+            me.maxHealth *
+            100
+        ) + "%";
+}
+
+
+/* GAME LOOP */
+
+const clock =
+    new THREE.Clock();
+
+function loop() {
+
+    requestAnimationFrame(loop);
+
+    const delta =
+        Math.min(
+            clock.getDelta(),
+            .05
+        );
+
+    updateMovement(delta);
+
+    updatePlayers();
+
+    updateCamera();
+
+    renderer.render(
+        scene,
+        camera
+    );
+}
+
+loop();
+
+
+window.addEventListener(
+    "resize",
+    () => {
+
+        camera.aspect =
+            innerWidth /
+            innerHeight;
+
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(
+            innerWidth,
+            innerHeight
+        );
+    }
+);
+
+</script>
+
+</body>
+</html>
