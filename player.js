@@ -1,6 +1,6 @@
 class Player {
   constructor() {
-    this.x = 150;
+    this.x = 300;
     this.y = CONFIG.ground - 70;
 
     this.width = 60;
@@ -15,54 +15,61 @@ class Player {
     this.level = 1;
     this.xp = 0;
     this.xpNeeded = 100;
-
     this.coins = 0;
 
     this.damage = 15;
-    this.speed = CONFIG.playerSpeed;
+    this.speed = 4;
+
+    this.facing = 1;
 
     this.attackCooldown = 0;
     this.attackTimer = 0;
-
-    this.facing = 1;
     this.invincible = 0;
   }
 
   update() {
     this.vx = 0;
 
-    if (keys.ArrowLeft) {
+    // Easy movement
+    if (keys.ArrowLeft || keys.KeyA) {
       this.vx = -this.speed;
       this.facing = -1;
     }
 
-    if (keys.ArrowRight) {
+    if (keys.ArrowRight || keys.KeyD) {
       this.vx = this.speed;
       this.facing = 1;
     }
 
+    // Jump
     if (
-      keys.ArrowUp &&
+      (keys.ArrowUp || keys.KeyW) &&
       this.y >= CONFIG.ground - this.height - 2
     ) {
       this.vy = -CONFIG.jumpPower;
     }
 
-    if (keys.Space && this.attackCooldown <= 0) {
+    // Attack
+    if (
+      (keys.Space || keys.KeyJ) &&
+      this.attackCooldown <= 0
+    ) {
       this.attack();
     }
 
     this.x += this.vx;
-    this.y += this.vy;
 
     this.vy += CONFIG.gravity;
+    this.y += this.vy;
 
     if (this.y >= CONFIG.ground - this.height) {
       this.y = CONFIG.ground - this.height;
       this.vy = 0;
     }
 
-    this.x = Math.max(0, Math.min(CONFIG.width - this.width, this.x));
+    // Don't let duck leave the world
+    this.x = Math.max(50, this.x);
+    this.x = Math.min(WORLD_WIDTH - this.width, this.x);
 
     if (this.attackCooldown > 0) {
       this.attackCooldown--;
@@ -78,7 +85,7 @@ class Player {
   }
 
   attack() {
-    this.attackCooldown = 30;
+    this.attackCooldown = 28;
     this.attackTimer = 10;
 
     attackEnemies(this);
@@ -101,65 +108,77 @@ class Player {
 
     while (this.xp >= this.xpNeeded) {
       this.xp -= this.xpNeeded;
+
       this.level++;
 
       this.maxHealth += 15;
       this.health = this.maxHealth;
       this.damage += 3;
 
-      this.xpNeeded = Math.floor(this.xpNeeded * 1.35);
+      this.xpNeeded = Math.floor(this.xpNeeded * 1.3);
 
-      showMessage("🦆 LEVEL UP!");
+      showMessage("⭐ LEVEL UP!");
     }
   }
 
-  draw(ctx) {
-    if (this.invincible % 6 < 3) return;
+  draw(ctx, cameraX) {
+    const screenX = this.x - cameraX;
+
+    if (
+      this.invincible > 0 &&
+      Math.floor(this.invincible / 5) % 2 === 0
+    ) {
+      return;
+    }
 
     ctx.save();
 
-    ctx.translate(this.x, this.y);
+    ctx.translate(screenX, this.y);
 
     if (this.facing === -1) {
       ctx.scale(-1, 1);
       ctx.translate(-this.width, 0);
     }
 
-    // body
-    ctx.fillStyle = CONFIG.colors.duck;
+    // Body
+    ctx.fillStyle = "#ffe135";
+
     ctx.beginPath();
-    ctx.ellipse(30, 42, 28, 25, 0, 0, Math.PI * 2);
+    ctx.ellipse(30, 43, 28, 25, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // head
+    // Head
     ctx.beginPath();
     ctx.arc(38, 18, 22, 0, Math.PI * 2);
     ctx.fill();
 
-    // eye
-    ctx.fillStyle = "black";
+    // Eye
+    ctx.fillStyle = "#111";
+
     ctx.beginPath();
     ctx.arc(45, 12, 4, 0, Math.PI * 2);
     ctx.fill();
 
-    // beak
+    // Beak
     ctx.fillStyle = "#f97316";
+
     ctx.beginPath();
     ctx.moveTo(55, 20);
-    ctx.lineTo(78, 28);
-    ctx.lineTo(55, 32);
+    ctx.lineTo(80, 27);
+    ctx.lineTo(55, 34);
     ctx.fill();
 
-    // feet
+    // Feet
     ctx.fillStyle = "#f97316";
-    ctx.fillRect(15, 62, 18, 7);
-    ctx.fillRect(40, 62, 18, 7);
 
-    // attack
+    ctx.fillRect(15, 63, 18, 7);
+    ctx.fillRect(40, 63, 18, 7);
+
+    // Attack effect
     if (this.attackTimer > 0) {
-      ctx.fillStyle = "#ef4444";
-      ctx.font = "bold 25px Arial";
-      ctx.fillText("💥", 55, 55);
+      ctx.fillStyle = "#ff4444";
+      ctx.font = "28px Arial";
+      ctx.fillText("💥", 55, 60);
     }
 
     ctx.restore();
