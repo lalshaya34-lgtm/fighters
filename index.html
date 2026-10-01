@@ -1,1083 +1,2462 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
-
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
-
-<title>Frog Evolution Online</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Frog Evolution — Fixed</title>
 
 <style>
+*{box-sizing:border-box}
 
-* {
-    box-sizing: border-box;
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  font-family:Arial,sans-serif;
+  background:#83d9ff;
 }
 
-body {
-    margin: 0;
-    overflow: hidden;
-    background: #071409;
-    color: white;
-    font-family: Arial, sans-serif;
+canvas{display:block}
+
+#ui{
+  position:fixed;
+  top:12px;
+  left:12px;
+  z-index:10;
+  color:#fff;
+  text-shadow:2px 2px 4px #000;
+  pointer-events:none;
+  min-width:270px;
 }
 
-#ui {
-    position: fixed;
-    z-index: 10;
-    top: 12px;
-    left: 12px;
-
-    width: 300px;
-
-    padding: 15px;
-
-    border-radius: 15px;
-
-    background:
-        rgba(0,0,0,.72);
-
-    border:
-        2px solid #58ff6b;
+#title{
+  font-size:25px;
+  font-weight:900;
 }
 
-h1 {
-    margin-top: 0;
-
-    color: #64ff76;
+.panel{
+  margin-top:7px;
+  padding:9px 11px;
+  border-radius:12px;
+  background:rgba(0,0,0,.42);
+  backdrop-filter:blur(4px);
 }
 
-.bar {
-    height: 12px;
-
-    margin: 5px 0 10px;
-
-    background: #222;
-
-    border-radius: 20px;
-
-    overflow: hidden;
+.bar{
+  height:14px;
+  background:#222;
+  border:2px solid #fff;
+  border-radius:8px;
+  overflow:hidden;
+  margin:4px 0 7px;
 }
 
-#hp {
-    width: 100%;
-    height: 100%;
-
-    background: #ff4141;
+.fill{
+  height:100%;
+  width:0%;
+  transition:width .15s;
 }
 
-#xp {
-    width: 0%;
-    height: 100%;
+#hpFill{background:#ff4141}
+#xpFill{background:#ffe229}
+#stamFill{background:#45d9ff}
+#hungerFill{background:#ff9d35}
 
-    background: #36a7ff;
+#right{
+  position:fixed;
+  right:12px;
+  top:12px;
+  z-index:10;
+  width:235px;
+  color:#fff;
+  text-shadow:1px 1px 3px #000;
 }
 
-#clanPanel {
-
-    position: fixed;
-
-    right: 12px;
-    top: 12px;
-
-    z-index: 10;
-
-    width: 280px;
-
-    padding: 15px;
-
-    background:
-        rgba(0,0,0,.72);
-
-    border-radius: 15px;
-
-    border:
-        2px solid #ffd84d;
+#quest{
+  background:rgba(0,0,0,.42);
+  padding:10px;
+  border-radius:12px;
 }
 
-button,
-input {
-
-    width: 100%;
-
-    margin-top: 6px;
-
-    padding: 9px;
-
-    border: 0;
-
-    border-radius: 8px;
+#buttons{
+  pointer-events:auto;
+  margin-top:7px;
 }
 
-button {
-    cursor: pointer;
-
-    background: #54e866;
-
-    font-weight: bold;
+button{
+  border:0;
+  border-radius:9px;
+  padding:9px 11px;
+  margin:3px;
+  cursor:pointer;
+  font-weight:bold;
+  background:#fff;
+  color:#163b1d;
+  touch-action:none;
 }
 
-#chat {
-
-    height: 100px;
-
-    overflow-y: auto;
-
-    background: #111;
-
-    margin-top: 8px;
-
-    padding: 7px;
-
-    font-size: 12px;
+button:hover{
+  filter:brightness(1.08);
 }
 
-#controls {
-
-    position: fixed;
-
-    bottom: 12px;
-    left: 12px;
-
-    z-index: 10;
-
-    padding: 10px;
-
-    background:
-        rgba(0,0,0,.6);
-
-    border-radius: 10px;
-
-    font-size: 13px;
+button:disabled{
+  opacity:.45;
+  cursor:not-allowed;
 }
 
+#bottom{
+  position:fixed;
+  bottom:12px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:10;
+  color:#fff;
+  text-shadow:2px 2px 4px #000;
+  text-align:center;
+  background:rgba(0,0,0,.35);
+  padding:7px 12px;
+  border-radius:10px;
+  pointer-events:none;
+}
+
+#message{
+  position:fixed;
+  top:48%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  z-index:30;
+  color:white;
+  text-align:center;
+  font-size:40px;
+  font-weight:900;
+  text-shadow:3px 3px 7px #000;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .2s;
+}
+
+#mobile{
+  position:fixed;
+  bottom:15px;
+  right:15px;
+  z-index:20;
+  display:none;
+  pointer-events:auto;
+}
+
+.pad{
+  display:grid;
+  grid-template-columns:55px 55px 55px;
+  gap:5px;
+}
+
+.pad button{
+  height:50px;
+  background:rgba(255,255,255,.75);
+}
+
+#attackBtn{
+  height:55px;
+  background:#ffdb45;
+}
+
+@media(max-width:700px){
+  #right{
+    width:180px;
+    font-size:12px;
+  }
+
+  #title{
+    font-size:19px;
+  }
+
+  #bottom{
+    font-size:10px;
+    bottom:5px;
+  }
+
+  #mobile{
+    display:block;
+  }
+}
 </style>
-
 </head>
 
 <body>
 
 <div id="ui">
+  <div id="title">🐸 FROG EVOLUTION</div>
 
-<h1>🐸 Frog Evolution</h1>
+  <div class="panel">
+    <b id="evoName">Tiny Frog</b>
 
-<div>
-World:
-<span id="world">Emerald Swamp</span>
+    <div>
+      Level <span id="level">1</span>
+      · Size <span id="size">1.0</span>x
+    </div>
+
+    <div>❤️ HP</div>
+    <div class="bar">
+      <div id="hpFill" class="fill"></div>
+    </div>
+
+    <div>⭐ XP <span id="xpText">0/35</span></div>
+    <div class="bar">
+      <div id="xpFill" class="fill"></div>
+    </div>
+
+    <div>⚡ Stamina</div>
+    <div class="bar">
+      <div id="stamFill" class="fill"></div>
+    </div>
+
+    <div>🍖 Hunger</div>
+    <div class="bar">
+      <div id="hungerFill" class="fill"></div>
+    </div>
+
+    <div>🪙 Coins: <span id="coins">0</span></div>
+    <div>🧬 Mutation: <span id="mutation">None</span></div>
+  </div>
 </div>
 
-<div>
-Evolution:
-<span id="evolution">
-Tiny Frog
-</span>
-</div>
+<div id="right">
 
-<br>
+  <div id="quest">
+    <b>📜 QUEST</b>
 
-<div>❤️ Health</div>
+    <div id="questText">
+      Defeat 3 creatures
+    </div>
 
-<div class="bar">
-<div id="hp"></div>
-</div>
+    <div>
+      Progress:
+      <span id="questProgress">0/3</span>
+    </div>
 
-<div>
-⭐ Level:
-<span id="level">1</span>
-</div>
+    <hr>
 
-<div>
-⚔️ Attack:
-<span id="attack">10</span>
-</div>
+    <div>
+      🏆 Achievements:
+      <span id="achievements">0</span>
+    </div>
 
-<div>
-XP:
-<span id="xpText">
-0 / 100
-</span>
-</div>
+    <div>
+      📖 Discoveries:
+      <span id="discoveries">0</span>
+    </div>
 
-<div class="bar">
-<div id="xp"></div>
-</div>
+    <div>
+      🔥 Rebirths:
+      <span id="rebirths">0</span>
+    </div>
+  </div>
 
-</div>
-
-
-<div id="clanPanel">
-
-<h2>🏰 Clan</h2>
-
-<div id="clanInfo">
-No clan
-</div>
-
-<input
-    id="clanName"
-    placeholder="Clan name"
->
-
-<button onclick="createClan()">
-Create Clan
-</button>
-
-<input
-    id="clanId"
-    placeholder="Clan ID"
->
-
-<button onclick="joinClan()">
-Join Clan
-</button>
-
-<button onclick="leaveClan()">
-Leave Clan
-</button>
-
-<div id="chat"></div>
-
-<input
-    id="chatInput"
-    placeholder="Clan message..."
-    onkeydown="
-        if(event.key === 'Enter')
-            sendChat()
-    "
->
+  <div id="buttons">
+    <button id="healBtn">💚 Heal 10 🪙</button>
+    <button id="mutateBtn">🧬 Mutation 40 🪙</button>
+    <button id="rebirthBtn">♻️ Rebirth</button>
+  </div>
 
 </div>
 
+<div id="bottom">
+  WASD / Arrows Move · SPACE Attack · SHIFT Sprint · E Ability · Mouse Drag Camera
+</div>
 
-<div id="controls">
+<div id="message"></div>
 
-WASD = Move<br>
-Mouse drag = Camera<br>
-SPACE = Attack<br>
-1 = Swamp<br>
-2 = Volcano<br>
-3 = Crystal Ocean
+<div id="mobile">
+
+  <div class="pad">
+    <span></span>
+    <button data-key="w">▲</button>
+    <span></span>
+
+    <button data-key="a">◀</button>
+    <button data-key="s">▼</button>
+    <button data-key="d">▶</button>
+  </div>
+
+  <button id="attackBtn">🐸 ATTACK</button>
 
 </div>
 
-
-<script src="
-https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.min.js
-"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.min.js"></script>
 
 <script>
+"use strict";
 
-const scene =
-    new THREE.Scene();
+/* =========================================================
+   SAFETY
+========================================================= */
 
-scene.background =
-    new THREE.Color(0x071b0b);
+const $ = id => document.getElementById(id);
 
-const camera =
-    new THREE.PerspectiveCamera(
-        70,
-        innerWidth / innerHeight,
-        .1,
-        500
-    );
+if(typeof THREE === "undefined"){
+  document.body.innerHTML =
+    "<h1 style='color:white;padding:30px'>Three.js failed to load. Check your internet connection and reload.</h1>";
+  throw new Error("Three.js unavailable");
+}
 
-const renderer =
-    new THREE.WebGLRenderer({
-        antialias: true
-    });
+/* =========================================================
+   THREE.JS
+========================================================= */
+
+const scene = new THREE.Scene();
+
+scene.background = new THREE.Color(0x86d9ff);
+
+scene.fog = new THREE.Fog(
+  0x86d9ff,
+  35,
+  125
+);
+
+const camera = new THREE.PerspectiveCamera(
+  65,
+  innerWidth / innerHeight,
+  .1,
+  300
+);
+
+const renderer = new THREE.WebGLRenderer({
+  antialias:true
+});
 
 renderer.setSize(
-    innerWidth,
-    innerHeight
+  innerWidth,
+  innerHeight
+);
+
+renderer.setPixelRatio(
+  Math.min(devicePixelRatio,2)
 );
 
 renderer.shadowMap.enabled = true;
 
 document.body.appendChild(
-    renderer.domElement
+  renderer.domElement
 );
 
+/* =========================================================
+   LIGHT
+========================================================= */
 
-/* LIGHTING */
+const hemi =
+  new THREE.HemisphereLight(
+    0xffffff,
+    0x355f35,
+    2
+  );
 
-scene.add(
-    new THREE.HemisphereLight(
-        0x9cffaa,
-        0x172015,
-        2
-    )
-);
+scene.add(hemi);
 
 const sun =
-    new THREE.DirectionalLight(
-        0xffffff,
-        2
-    );
+  new THREE.DirectionalLight(
+    0xffffff,
+    2
+  );
 
 sun.position.set(
-    20,
-    40,
-    20
+  30,
+  60,
+  20
 );
+
+sun.castShadow = true;
 
 scene.add(sun);
 
+/* =========================================================
+   STATE
+========================================================= */
 
-/* NETWORK */
+const state = {
+  level:1,
+  xp:0,
 
-const protocol =
-    location.protocol === "https:"
-        ? "wss:"
-        : "ws:";
+  coins:0,
 
-const socket =
-    new WebSocket(
-        protocol +
-        "//" +
-        location.host
-    );
+  hp:100,
+  maxHp:100,
 
+  stamina:100,
+  hunger:100,
 
-/* GAME DATA */
+  size:1,
+  speed:.16,
+  damage:12,
 
-let myId = null;
+  rebirths:0,
 
-let me = {
-    x: 0,
-    y: 1,
-    z: 0
+  mutation:"None",
+
+  kills:0,
+
+  discoveries:new Set(),
+  achievements:new Set(),
+
+  questKills:0,
+  questGoal:3,
+
+  attackCooldown:0,
+  abilityCooldown:0,
+  invulnerable:0,
+
+  score:0
 };
 
-let players = {};
+const evolutionNames = [
+  "Tiny Frog",
+  "Young Frog",
+  "Mega Frog",
+  "Jungle Frog",
+  "Armored Frog",
+  "Titan Frog",
+  "Ancient Frog",
+  "Mythic Frog",
+  "Frog King",
+  "COSMIC FROG"
+];
 
-let playerMeshes = {};
+const mutationNames = [
+  "None",
+  "Fire",
+  "Ice",
+  "Poison",
+  "Electric",
+  "Giant",
+  "Stealth"
+];
 
-let keys = {};
+const keys = {};
 
-let yaw = 0;
-
-let pitch = .45;
-
-let world = 1;
-
-
-/* FROG */
-
-function makeFrog(color = 0x44dd55) {
-
-    const frog =
-        new THREE.Group();
-
-    const body =
-        new THREE.Mesh(
-            new THREE.SphereGeometry(
-                1,
-                20,
-                20
-            ),
-
-            new THREE.MeshStandardMaterial({
-                color
-            })
-        );
-
-    body.scale.set(
-        1.25,
-        .75,
-        1
-    );
-
-    frog.add(body);
-
-
-    for (const side of [-1, 1]) {
-
-        const eye =
-            new THREE.Mesh(
-                new THREE.SphereGeometry(
-                    .35,
-                    16,
-                    16
-                ),
-
-                new THREE.MeshStandardMaterial({
-                    color: 0xbaffba
-                })
-            );
-
-        eye.position.set(
-            side * .45,
-            .45,
-            -.25
-        );
-
-        frog.add(eye);
-
-
-        const pupil =
-            new THREE.Mesh(
-                new THREE.SphereGeometry(
-                    .14,
-                    12,
-                    12
-                ),
-
-                new THREE.MeshStandardMaterial({
-                    color: 0x000000
-                })
-            );
-
-        pupil.position.set(
-            side * .45,
-            .48,
-            -.56
-        );
-
-        frog.add(pupil);
-    }
-
-    return frog;
-}
-
-
-/* WORLD */
-
-function buildWorld() {
-
-    const old =
-        scene.getObjectByName(
-            "ground"
-        );
-
-    if (old)
-        scene.remove(old);
-
-    let color;
-
-    if (world === 1)
-        color = 0x164b20;
-
-    if (world === 2)
-        color = 0x4b1712;
-
-    if (world === 3)
-        color = 0x102f55;
-
-    const ground =
-        new THREE.Mesh(
-            new THREE.PlaneGeometry(
-                150,
-                150
-            ),
-
-            new THREE.MeshStandardMaterial({
-                color
-            })
-        );
-
-    ground.name = "ground";
-
-    ground.rotation.x =
-        -Math.PI / 2;
-
-    scene.add(ground);
-
-    document.getElementById(
-        "world"
-    ).textContent =
-        world === 1
-            ? "Emerald Swamp"
-            : world === 2
-                ? "Volcanic Marsh"
-                : "Crystal Ocean";
-}
-
-buildWorld();
-
-
-/* INPUT */
-
-window.addEventListener(
-    "keydown",
-    e => {
-
-        keys[e.key.toLowerCase()] = true;
-
-        if (e.code === "Space") {
-
-            socket.send(
-                JSON.stringify({
-                    type: "attack"
-                })
-            );
-        }
-
-        if (e.key === "1")
-            changeWorld(1);
-
-        if (e.key === "2")
-            changeWorld(2);
-
-        if (e.key === "3")
-            changeWorld(3);
-    }
-);
-
-window.addEventListener(
-    "keyup",
-    e => {
-        keys[e.key.toLowerCase()] = false;
-    }
-);
-
-
-/* CAMERA */
-
+let cameraAngle = 0;
 let mouseDown = false;
+let lastMouseX = 0;
 
-let lastX = 0;
-let lastY = 0;
+let messageTimer = null;
 
-window.addEventListener(
-    "mousedown",
-    e => {
+let worldTime = 0;
+let eventTimer = 25;
 
-        mouseDown = true;
+const clock = new THREE.Clock();
 
-        lastX = e.clientX;
-        lastY = e.clientY;
-    }
-);
+/* =========================================================
+   WORLD
+========================================================= */
 
-window.addEventListener(
-    "mouseup",
-    () => {
-        mouseDown = false;
-    }
-);
+const ground =
+  new THREE.Mesh(
+    new THREE.CylinderGeometry(
+      78,
+      78,
+      1,
+      64
+    ),
+    new THREE.MeshStandardMaterial({
+      color:0x4eaa42
+    })
+  );
 
-window.addEventListener(
-    "mousemove",
-    e => {
+ground.position.y=-.5;
+ground.receiveShadow=true;
 
-        if (!mouseDown)
-            return;
+scene.add(ground);
 
-        yaw -=
-            (e.clientX - lastX)
-            * .005;
+function createPond(x,z,r){
 
-        pitch -=
-            (e.clientY - lastY)
-            * .005;
+  const pond =
+    new THREE.Mesh(
+      new THREE.CylinderGeometry(
+        r,r,.18,40
+      ),
+      new THREE.MeshStandardMaterial({
+        color:0x269fe0,
+        transparent:true,
+        opacity:.85
+      })
+    );
 
-        pitch =
-            Math.max(
-                .15,
-                Math.min(
-                    1.4,
-                    pitch
-                )
-            );
+  pond.position.set(x,.02,z);
 
-        lastX = e.clientX;
-        lastY = e.clientY;
-    }
-);
-
-
-/* NETWORK STATE */
-
-socket.addEventListener(
-    "message",
-    event => {
-
-        const data =
-            JSON.parse(event.data);
-
-        if (data.type === "welcome") {
-
-            myId =
-                data.player.id;
-
-            me =
-                data.player;
-
-            players[myId] =
-                data.player;
-
-            updateUI();
-        }
-
-
-        if (data.type === "state") {
-
-            me =
-                data.self;
-
-            players = {};
-
-            for (
-                const p of data.players
-            ) {
-                players[p.id] = p;
-            }
-
-            updateUI();
-
-            updateClan(
-                data.clan
-            );
-        }
-
-
-        if (data.type === "playerLeft") {
-
-            if (
-                playerMeshes[data.id]
-            ) {
-
-                scene.remove(
-                    playerMeshes[data.id]
-                );
-
-                delete playerMeshes[data.id];
-            }
-        }
-
-
-        if (data.type === "clanChat") {
-
-            const chat =
-                document.getElementById(
-                    "chat"
-                );
-
-            chat.innerHTML +=
-                `<div>
-                    <b>${escapeHTML(data.name)}</b>:
-                    ${escapeHTML(data.message)}
-                </div>`;
-
-            chat.scrollTop =
-                chat.scrollHeight;
-        }
-    }
-);
-
-
-/* PLAYER RENDERING */
-
-function updatePlayers() {
-
-    for (
-        const id in players
-    ) {
-
-        if (id === myId)
-            continue;
-
-        const p =
-            players[id];
-
-        if (!playerMeshes[id]) {
-
-            playerMeshes[id] =
-                makeFrog(
-                    0x33aaff
-                );
-
-            scene.add(
-                playerMeshes[id]
-            );
-        }
-
-        const mesh =
-            playerMeshes[id];
-
-        mesh.position.lerp(
-            new THREE.Vector3(
-                p.x,
-                p.y,
-                p.z
-            ),
-            .3
-        );
-
-        mesh.scale.setScalar(
-            p.level >= 10
-                ? 2
-                : p.level >= 6
-                    ? 1.5
-                    : 1
-        );
-    }
+  scene.add(pond);
 }
 
+createPond(-25,-18,15);
+createPond(28,25,11);
 
-/* MOVEMENT */
+/* =========================================================
+   TREES
+========================================================= */
 
-let lastSent = 0;
+function createTree(x,z){
 
-function updateMovement(delta) {
+  const group =
+    new THREE.Group();
 
-    let forward = 0;
-    let side = 0;
+  const trunk =
+    new THREE.Mesh(
+      new THREE.CylinderGeometry(
+        .55,.8,5,8
+      ),
+      new THREE.MeshStandardMaterial({
+        color:0x75451f
+      })
+    );
 
-    if (
-        keys["w"] ||
-        keys["arrowup"]
-    )
-        forward++;
+  trunk.position.y=2.5;
+  trunk.castShadow=true;
 
-    if (
-        keys["s"] ||
-        keys["arrowdown"]
-    )
-        forward--;
+  group.add(trunk);
 
-    if (
-        keys["a"] ||
-        keys["arrowleft"]
-    )
-        side--;
+  const leaves =
+    new THREE.Mesh(
+      new THREE.SphereGeometry(
+        3,12,10
+      ),
+      new THREE.MeshStandardMaterial({
+        color:0x168737
+      })
+    );
 
-    if (
-        keys["d"] ||
-        keys["arrowright"]
-    )
-        side++;
+  leaves.position.y=6;
+  leaves.castShadow=true;
 
-    if (
-        forward === 0 &&
-        side === 0
-    )
-        return;
+  group.add(leaves);
 
-    const direction =
-        new THREE.Vector3(
-            side,
-            0,
-            forward
+  group.position.set(
+    x,0,z
+  );
+
+  scene.add(group);
+}
+
+for(let i=0;i<55;i++){
+
+  const x=(Math.random()-.5)*135;
+  const z=(Math.random()-.5)*135;
+
+  if(Math.hypot(x,z)<12) continue;
+
+  createTree(x,z);
+}
+
+/* =========================================================
+   ROCKS
+========================================================= */
+
+for(let i=0;i<45;i++){
+
+  const rock =
+    new THREE.Mesh(
+      new THREE.DodecahedronGeometry(
+        .4+Math.random()*.8,
+        0
+      ),
+      new THREE.MeshStandardMaterial({
+        color:0x777777
+      })
+    );
+
+  rock.position.set(
+    (Math.random()-.5)*135,
+    .35,
+    (Math.random()-.5)*135
+  );
+
+  rock.scale.y=.5;
+  rock.castShadow=true;
+
+  scene.add(rock);
+}
+
+/* =========================================================
+   FROG
+========================================================= */
+
+const frog =
+  new THREE.Group();
+
+scene.add(frog);
+
+const frogBody =
+  new THREE.Mesh(
+    new THREE.SphereGeometry(
+      1.1,20,16
+    ),
+    new THREE.MeshStandardMaterial({
+      color:0x35c94a
+    })
+  );
+
+frogBody.scale.set(
+  1.15,.75,1.25
+);
+
+frogBody.position.y=1.05;
+frogBody.castShadow=true;
+
+frog.add(frogBody);
+
+function addFrogEye(x){
+
+  const white =
+    new THREE.Mesh(
+      new THREE.SphereGeometry(
+        .32,12,12
+      ),
+      new THREE.MeshStandardMaterial({
+        color:0xffffff
+      })
+    );
+
+  white.position.set(
+    x,1.65,.6
+  );
+
+  const pupil =
+    new THREE.Mesh(
+      new THREE.SphereGeometry(
+        .13,10,10
+      ),
+      new THREE.MeshStandardMaterial({
+        color:0x111111
+      })
+    );
+
+  pupil.position.set(
+    x,1.67,.88
+  );
+
+  frog.add(
+    white,
+    pupil
+  );
+}
+
+addFrogEye(-.48);
+addFrogEye(.48);
+
+const mouth =
+  new THREE.Mesh(
+    new THREE.TorusGeometry(
+      .35,.06,8,20,Math.PI
+    ),
+    new THREE.MeshStandardMaterial({
+      color:0x441111
+    })
+  );
+
+mouth.rotation.x=Math.PI;
+mouth.position.set(
+  0,.92,1.02
+);
+
+frog.add(mouth);
+
+/* =========================================================
+   ANIMALS
+========================================================= */
+
+const animalTypes = [
+  {
+    name:"Bug",
+    color:0xffcf26,
+    size:.45,
+    xp:4,
+    coins:2,
+    speed:.035,
+    hp:15
+  },
+  {
+    name:"Fish",
+    color:0xff7144,
+    size:.6,
+    xp:7,
+    coins:4,
+    speed:.04,
+    hp:25
+  },
+  {
+    name:"Mouse",
+    color:0xaaaaaa,
+    size:.7,
+    xp:9,
+    coins:5,
+    speed:.055,
+    hp:30
+  },
+  {
+    name:"Lizard",
+    color:0x55b95a,
+    size:.8,
+    xp:12,
+    coins:7,
+    speed:.045,
+    hp:40
+  },
+  {
+    name:"Snake",
+    color:0x914dcc,
+    size:1,
+    xp:18,
+    coins:10,
+    speed:.045,
+    hp:55
+  },
+  {
+    name:"Crab",
+    color:0xff5544,
+    size:1.2,
+    xp:25,
+    coins:14,
+    speed:.04,
+    hp:75
+  },
+  {
+    name:"Turtle",
+    color:0x357d52,
+    size:1.5,
+    xp:35,
+    coins:18,
+    speed:.025,
+    hp:100
+  },
+  {
+    name:"Bird",
+    color:0x55aaff,
+    size:1.4,
+    xp:45,
+    coins:25,
+    speed:.07,
+    hp:120
+  }
+];
+
+const animals=[];
+
+function randomSpawnPosition(){
+
+  let x;
+  let z;
+
+  do{
+    x=(Math.random()-.5)*130;
+    z=(Math.random()-.5)*130;
+  }
+  while(
+    Math.hypot(x-frog.position.x,z-frog.position.z)<14
+  );
+
+  return new THREE.Vector3(
+    x,
+    0,
+    z
+  );
+}
+
+function createAnimal(
+  typeIndex=null,
+  boss=false,
+  forcedPosition=null
+){
+
+  const safeIndex =
+    typeIndex===null
+      ? Math.floor(
+          Math.random()*animalTypes.length
+        )
+      : Math.max(
+          0,
+          Math.min(
+            animalTypes.length-1,
+            Math.floor(typeIndex)
+          )
         );
 
-    direction.normalize();
+  const type=animalTypes[safeIndex];
 
-    direction.applyAxisAngle(
-        new THREE.Vector3(
-            0,
-            1,
-            0
+  const group =
+    new THREE.Group();
+
+  const multiplier=boss ? 1.8 : 1;
+
+  const body =
+    new THREE.Mesh(
+      new THREE.SphereGeometry(
+        type.size*multiplier,
+        12,
+        10
+      ),
+      new THREE.MeshStandardMaterial({
+        color:type.color
+      })
+    );
+
+  body.scale.set(
+    1.3,.8,1
+  );
+
+  body.position.y=
+    type.size*multiplier;
+
+  body.castShadow=true;
+
+  group.add(body);
+
+  for(const x of [-.22,.22]){
+
+    const eye =
+      new THREE.Mesh(
+        new THREE.SphereGeometry(
+          .12,8,8
         ),
-        yaw
+        new THREE.MeshStandardMaterial({
+          color:0x111111
+        })
+      );
+
+    eye.position.set(
+      x*type.size*2,
+      type.size*1.3*multiplier,
+      type.size*.8*multiplier
     );
 
-    me.x +=
-        direction.x *
-        me.speed *
-        delta;
+    group.add(eye);
+  }
 
-    me.z +=
-        direction.z *
-        me.speed *
-        delta;
+  const maxHp =
+    type.hp*(boss ? 5 : 1);
 
-    me.x =
-        Math.max(
-            -70,
-            Math.min(
-                70,
-                me.x
-            )
-        );
+  group.userData={
+    type,
+    hp:maxHp,
+    maxHp,
+    boss,
+    wander:Math.random()*100
+  };
 
-    me.z =
-        Math.max(
-            -70,
-            Math.min(
-                70,
-                me.z
-            )
-        );
+  const spawn =
+    forcedPosition instanceof THREE.Vector3
+      ? forcedPosition.clone()
+      : randomSpawnPosition();
 
-    const now =
-        Date.now();
+  group.position.copy(spawn);
 
-    if (
-        now - lastSent > 50
-    ) {
+  scene.add(group);
+  animals.push(group);
 
-        socket.send(
-            JSON.stringify({
-                type: "move",
+  return group;
+}
 
-                x: me.x,
-                y: me.y,
-                z: me.z
-            })
-        );
+for(let i=0;i<50;i++){
+  createAnimal();
+}
 
-        lastSent = now;
+/* =========================================================
+   PARTICLES
+========================================================= */
+
+const particles=[];
+
+function burst(
+  position,
+  color=0xffffff,
+  count=12
+){
+
+  const safeCount=
+    Math.max(
+      0,
+      Math.min(
+        60,
+        Math.floor(count)
+      )
+    );
+
+  for(let i=0;i<safeCount;i++){
+
+    const particle =
+      new THREE.Mesh(
+        new THREE.SphereGeometry(
+          .07,5,5
+        ),
+        new THREE.MeshBasicMaterial({
+          color
+        })
+      );
+
+    particle.position.copy(position);
+
+    particle.userData={
+      life:.7,
+      vx:(Math.random()-.5)*.15,
+      vy:Math.random()*.15+.04,
+      vz:(Math.random()-.5)*.15
+    };
+
+    scene.add(particle);
+    particles.push(particle);
+  }
+}
+
+function updateParticles(dt){
+
+  for(
+    let i=particles.length-1;
+    i>=0;
+    i--
+  ){
+
+    const p=particles[i];
+
+    p.userData.life-=dt;
+
+    p.position.x+=
+      p.userData.vx;
+
+    p.position.y+=
+      p.userData.vy;
+
+    p.position.z+=
+      p.userData.vz;
+
+    p.userData.vy-=.003;
+
+    if(p.userData.life<=0){
+
+      scene.remove(p);
+      particles.splice(i,1);
     }
+  }
 }
 
+/* =========================================================
+   UI
+========================================================= */
 
-/* CAMERA */
+function xpNeeded(){
 
-function updateCamera() {
-
-    const distance = 12;
-
-    camera.position.set(
-        me.x +
-            Math.sin(yaw) *
-            Math.cos(pitch) *
-            distance,
-
-        me.y +
-            Math.sin(pitch) *
-            distance,
-
-        me.z +
-            Math.cos(yaw) *
-            Math.cos(pitch) *
-            distance
-    );
-
-    camera.lookAt(
-        me.x,
-        me.y + .5,
-        me.z
-    );
+  return Math.max(
+    1,
+    Math.floor(
+      20+
+      state.level*15+
+      state.rebirths*10
+    )
+  );
 }
 
+function updateUI(){
 
-/* WORLDS */
+  const need=xpNeeded();
 
-function changeWorld(number) {
+  $("evoName").textContent=
+    evolutionNames[
+      Math.min(
+        state.level-1,
+        evolutionNames.length-1
+      )
+    ];
 
-    world = number;
+  $("level").textContent=
+    state.level;
 
-    socket.send(
-        JSON.stringify({
-            type: "world",
-            world: number
-        })
-    );
+  $("size").textContent=
+    state.size.toFixed(1);
 
-    buildWorld();
+  $("coins").textContent=
+    Math.floor(state.coins);
+
+  $("mutation").textContent=
+    state.mutation;
+
+  $("hpFill").style.width=
+    `${Math.max(
+      0,
+      Math.min(
+        100,
+        state.hp/state.maxHp*100
+      )
+    )}%`;
+
+  $("xpFill").style.width=
+    `${Math.max(
+      0,
+      Math.min(
+        100,
+        state.xp/need*100
+      )
+    )}%`;
+
+  $("stamFill").style.width=
+    `${Math.max(
+      0,
+      Math.min(100,state.stamina)
+    )}%`;
+
+  $("hungerFill").style.width=
+    `${Math.max(
+      0,
+      Math.min(100,state.hunger)
+    )}%`;
+
+  $("xpText").textContent=
+    `${Math.floor(state.xp)}/${need}`;
+
+  $("questProgress").textContent=
+    `${state.questKills}/${state.questGoal}`;
+
+  $("achievements").textContent=
+    state.achievements.size;
+
+  $("discoveries").textContent=
+    state.discoveries.size;
+
+  $("rebirths").textContent=
+    state.rebirths;
 }
 
+function message(
+  text,
+  color="#fff"
+){
 
-/* CLANS */
+  const element=$("message");
 
-function createClan() {
+  element.textContent=text;
+  element.style.color=color;
+  element.style.opacity="1";
 
-    const name =
-        document.getElementById(
-            "clanName"
-        ).value.trim();
+  if(messageTimer!==null){
+    clearTimeout(messageTimer);
+  }
 
-    if (!name)
-        return;
-
-    socket.send(
-        JSON.stringify({
-            type: "createClan",
-            name
-        })
-    );
+  messageTimer=setTimeout(()=>{
+    element.style.opacity="0";
+    messageTimer=null;
+  },1100);
 }
 
+/* =========================================================
+   ACHIEVEMENTS
+========================================================= */
 
-function joinClan() {
+function unlockAchievement(name){
 
-    const id =
-        document.getElementById(
-            "clanId"
-        ).value.trim();
+  if(
+    typeof name!=="string" ||
+    name.length===0
+  ){
+    return false;
+  }
 
-    if (!id)
-        return;
+  if(state.achievements.has(name)){
+    return false;
+  }
 
-    socket.send(
-        JSON.stringify({
-            type: "joinClan",
-            clanId: id
-        })
-    );
+  state.achievements.add(name);
+
+  state.coins+=15;
+
+  message(
+    "🏆 "+name+" +15 🪙",
+    "#ffe229"
+  );
+
+  return true;
 }
 
+/* =========================================================
+   EVOLUTION
+========================================================= */
 
-function leaveClan() {
+function gainXP(amount){
 
-    socket.send(
-        JSON.stringify({
-            type: "leaveClan"
-        })
-    );
+  const safeAmount=
+    Number.isFinite(amount)
+      ? Math.max(0,amount)
+      : 0;
+
+  state.xp+=safeAmount;
+
+  state.score+=safeAmount;
+
+  let evolutionCount=0;
+
+  while(
+    state.xp>=xpNeeded() &&
+    evolutionCount<100
+  ){
+
+    state.xp-=xpNeeded();
+
+    evolve();
+
+    evolutionCount++;
+  }
+
+  updateUI();
 }
 
+function evolve(){
 
-function sendChat() {
+  state.level++;
 
-    const input =
-        document.getElementById(
-            "chatInput"
-        );
+  state.size+=.28;
+  state.speed+=.012;
+  state.damage+=5;
 
-    const message =
-        input.value.trim();
+  state.maxHp+=20;
+  state.hp=state.maxHp;
 
-    if (!message)
-        return;
+  frog.scale.set(
+    state.size,
+    state.size,
+    state.size
+  );
 
-    socket.send(
-        JSON.stringify({
-            type: "clanChat",
-            message
-        })
-    );
+  const colors=[
+    0x35c94a,
+    0x22aa55,
+    0x168b66,
+    0x6d4bcc,
+    0xff8c32,
+    0xd93472,
+    0x3cccf2,
+    0xffdf4d,
+    0xf5f5f5,
+    0x9dff00
+  ];
 
-    input.value = "";
+  frogBody.material.color.setHex(
+    colors[
+      Math.min(
+        state.level-1,
+        colors.length-1
+      )
+    ]
+  );
+
+  burst(
+    frog.position,
+    colors[
+      Math.min(
+        state.level-1,
+        colors.length-1
+      )
+    ],
+    30
+  );
+
+  if(state.level===3){
+    unlockAchievement("Mega Frog");
+  }
+
+  if(state.level===5){
+    unlockAchievement("Titan");
+  }
+
+  if(state.level===10){
+    unlockAchievement("Cosmic Frog");
+  }
+
+  message(
+    "EVOLVED! 🧬 "+
+    evolutionNames[
+      Math.min(
+        state.level-1,
+        evolutionNames.length-1
+      )
+    ],
+    "#ffe229"
+  );
+
+  updateUI();
 }
 
+/* =========================================================
+   COMBAT
+========================================================= */
 
-function updateClan(clan) {
+function attack(){
 
-    const element =
-        document.getElementById(
-            "clanInfo"
-        );
+  if(state.attackCooldown>0){
+    return;
+  }
 
-    if (!clan) {
+  state.attackCooldown=.38;
 
-        element.innerHTML =
-            "You are not in a clan.";
+  frog.scale.set(
+    state.size*1.18,
+    state.size*.82,
+    state.size*1.18
+  );
 
-        return;
+  setTimeout(()=>{
+
+    frog.scale.set(
+      state.size,
+      state.size,
+      state.size
+    );
+
+  },100);
+
+  const range=
+    3.2*state.size;
+
+  let target=null;
+  let closest=Infinity;
+
+  for(const animal of animals){
+
+    if(
+      !animal ||
+      !animal.parent
+    ){
+      continue;
     }
 
-    element.innerHTML = `
-        <b>${escapeHTML(clan.name)}</b><br>
-        Clan Level: ${clan.level}<br>
-        Members: ${clan.members.length}<br>
-        Clan ID:<br>
-        <small>${clan.id}</small>
-    `;
+    const distance=
+      frog.position.distanceTo(
+        animal.position
+      );
+
+    if(
+      distance<range &&
+      distance<closest
+    ){
+
+      closest=distance;
+      target=animal;
+    }
+  }
+
+  if(!target){
+    return;
+  }
+
+  let damage=state.damage;
+
+  if(state.mutation==="Fire"){
+    damage*=1.35;
+  }
+
+  if(state.mutation==="Electric"){
+    damage*=1.5;
+  }
+
+  if(state.mutation==="Giant"){
+    damage*=1.25;
+  }
+
+  target.userData.hp-=damage;
+
+  burst(
+    target.position,
+    state.mutation==="Fire"
+      ? 0xff5522
+      : 0xffff66,
+    8
+  );
+
+  if(
+    target.userData.hp<=0
+  ){
+
+    defeatAnimal(target);
+
+  }else{
+
+    // Knockback
+    const dx=
+      target.position.x-frog.position.x;
+
+    const dz=
+      target.position.z-frog.position.z;
+
+    const length=
+      Math.max(.001,Math.hypot(dx,dz));
+
+    target.position.x+=
+      dx/length*.8;
+
+    target.position.z+=
+      dz/length*.8;
+  }
 }
 
+function defeatAnimal(animal){
 
-function escapeHTML(text) {
+  if(
+    !animal ||
+    !animal.userData ||
+    !animal.parent
+  ){
+    return;
+  }
 
-    return String(text)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+  const type=
+    animal.userData.type;
+
+  const bonus=
+    animal.userData.boss
+      ? 5
+      : 1;
+
+  state.kills++;
+  state.coins+=type.coins*bonus;
+
+  state.questKills++;
+
+  state.discoveries.add(
+    type.name
+  );
+
+  gainXP(
+    type.xp*bonus
+  );
+
+  burst(
+    animal.position,
+    type.color,
+    animal.userData.boss ? 30 : 14
+  );
+
+  if(state.kills===1){
+    unlockAchievement("First Hunt");
+  }
+
+  if(state.kills>=10){
+    unlockAchievement("Hunter");
+  }
+
+  if(state.kills>=50){
+    unlockAchievement("Apex");
+  }
+
+  if(state.discoveries.size>=8){
+    unlockAchievement("Explorer");
+  }
+
+  const index=
+    animals.indexOf(animal);
+
+  if(index>=0){
+    animals.splice(index,1);
+  }
+
+  scene.remove(animal);
+
+  if(
+    state.questKills>=
+    state.questGoal
+  ){
+
+    state.coins+=25;
+
+    state.questKills=0;
+
+    state.questGoal=
+      Math.min(
+        30,
+        state.questGoal+3
+      );
+
+    message(
+      "QUEST COMPLETE! +25 🪙",
+      "#ffe229"
+    );
+  }
+
+  setTimeout(()=>{
+
+    createAnimal();
+
+  },700);
+
+  updateUI();
 }
 
+/* =========================================================
+   SPECIAL ABILITY
+========================================================= */
 
-/* UI */
+function ability(){
 
-function updateUI() {
+  if(state.abilityCooldown>0){
+    return;
+  }
 
-    if (!me)
-        return;
+  state.abilityCooldown=8;
 
-    document.getElementById(
-        "level"
-    ).textContent =
-        me.level;
+  let radius=
+    5*state.size;
 
-    document.getElementById(
-        "attack"
-    ).textContent =
-        me.attack;
+  if(state.mutation==="Giant"){
+    radius*=1.4;
+  }
 
-    document.getElementById(
-        "evolution"
-    ).textContent =
-        me.evolution;
+  if(state.mutation==="Electric"){
+    radius*=1.2;
+  }
 
-    document.getElementById(
-        "xpText"
-    ).textContent =
-        `${me.xp || 0} / ${me.xpNeeded || 100}`;
+  let hit=0;
 
-    document.getElementById(
-        "xp"
-    ).style.width =
-        (
-            (me.xp || 0) /
-            (me.xpNeeded || 100) *
-            100
-        ) + "%";
+  // Copy the array so removals during combat
+  // cannot corrupt the loop.
+  const targets=
+    animals.slice();
 
-    document.getElementById(
-        "hp"
-    ).style.width =
-        (
-            me.health /
-            me.maxHealth *
-            100
-        ) + "%";
+  for(const animal of targets){
+
+    if(
+      !animal ||
+      !animal.parent
+    ){
+      continue;
+    }
+
+    if(
+      frog.position.distanceTo(
+        animal.position
+      )<radius
+    ){
+
+      animal.userData.hp-=
+        state.damage*2;
+
+      hit++;
+
+      if(
+        animal.userData.hp<=0
+      ){
+        defeatAnimal(animal);
+      }
+    }
+  }
+
+  const particleColor=
+    state.mutation==="Ice"
+      ? 0x75ddff
+      : state.mutation==="Poison"
+      ? 0x9dff4a
+      : state.mutation==="Electric"
+      ? 0xffff44
+      : 0xffffff;
+
+  burst(
+    frog.position,
+    particleColor,
+    35
+  );
+
+  if(hit>0){
+    message(
+      "SPECIAL ATTACK! 💥",
+      "#ffffff"
+    );
+  }
+
+  updateUI();
 }
 
+/* =========================================================
+   MOVEMENT
+========================================================= */
 
-/* GAME LOOP */
+function moveFrog(dt){
 
-const clock =
-    new THREE.Clock();
+  let x=0;
+  let z=0;
 
-function loop() {
+  if(keys.w || keys.arrowup){
+    z-=1;
+  }
 
-    requestAnimationFrame(loop);
+  if(keys.s || keys.arrowdown){
+    z+=1;
+  }
 
-    const delta =
+  if(keys.a || keys.arrowleft){
+    x-=1;
+  }
+
+  if(keys.d || keys.arrowright){
+    x+=1;
+  }
+
+  const length=
+    Math.hypot(x,z);
+
+  if(length>0){
+
+    x/=length;
+    z/=length;
+
+    let currentSpeed=
+      state.speed;
+
+    if(
+      keys.shift &&
+      state.stamina>0
+    ){
+
+      currentSpeed*=1.8;
+
+      state.stamina-=
+        35*dt;
+
+    }else{
+
+      state.stamina+=
+        25*dt;
+    }
+
+    state.stamina=
+      Math.max(
+        0,
         Math.min(
-            clock.getDelta(),
-            .05
-        );
+          100,
+          state.stamina
+        )
+      );
 
-    updateMovement(delta);
+    frog.position.x+=
+      x*currentSpeed;
 
-    updatePlayers();
+    frog.position.z+=
+      z*currentSpeed;
 
-    updateCamera();
+    frog.rotation.y=
+      Math.atan2(x,z);
 
-    renderer.render(
-        scene,
-        camera
+    frog.position.y=
+      Math.abs(
+        Math.sin(
+          performance.now()*.015
+        )
+      )*.15;
+
+  }else{
+
+    state.stamina=
+      Math.min(
+        100,
+        state.stamina+18*dt
+      );
+
+    frog.position.y=0;
+  }
+
+  frog.position.x=
+    THREE.MathUtils.clamp(
+      frog.position.x,
+      -70,
+      70
+    );
+
+  frog.position.z=
+    THREE.MathUtils.clamp(
+      frog.position.z,
+      -70,
+      70
     );
 }
 
-loop();
+/* =========================================================
+   ENEMY AI
+========================================================= */
 
+function updateAnimals(dt){
 
-window.addEventListener(
-    "resize",
-    () => {
+  for(const animal of animals){
 
-        camera.aspect =
-            innerWidth /
-            innerHeight;
-
-        camera.updateProjectionMatrix();
-
-        renderer.setSize(
-            innerWidth,
-            innerHeight
-        );
+    if(
+      !animal ||
+      !animal.parent ||
+      !animal.userData
+    ){
+      continue;
     }
+
+    const type=
+      animal.userData.type;
+
+    const dx=
+      frog.position.x-
+      animal.position.x;
+
+    const dz=
+      frog.position.z-
+      animal.position.z;
+
+    const distance=
+      Math.hypot(dx,dz);
+
+    if(
+      state.size>
+        type.size*1.6 &&
+      distance<9
+    ){
+
+      const length=
+        Math.max(.001,distance);
+
+      animal.position.x-=
+        dx/length*
+        type.speed*
+        dt*60;
+
+      animal.position.z-=
+        dz/length*
+        type.speed*
+        dt*60;
+
+    }else if(
+      (
+        type.size>
+          state.size*.9 ||
+        animal.userData.boss
+      ) &&
+      distance<3.2
+    ){
+
+      if(
+        state.invulnerable<=0
+      ){
+
+        const damage=
+          5+type.size*4;
+
+        state.hp-=damage;
+
+        state.invulnerable=.7;
+
+        message(
+          "OUCH! -"+
+          Math.floor(damage),
+          "#ff5555"
+        );
+
+        if(state.hp<=0){
+          respawn();
+        }
+      }
+
+    }else{
+
+      animal.userData.wander+=dt;
+
+      animal.position.x+=
+        Math.sin(
+          animal.userData.wander+
+          animal.id
+        )*
+        type.speed*.12;
+
+      animal.position.z+=
+        Math.cos(
+          animal.userData.wander*.8+
+          animal.id
+        )*
+        type.speed*.12;
+    }
+
+    animal.position.x=
+      THREE.MathUtils.clamp(
+        animal.position.x,
+        -72,
+        72
+      );
+
+    animal.position.z=
+      THREE.MathUtils.clamp(
+        animal.position.z,
+        -72,
+        72
+      );
+  }
+}
+
+/* =========================================================
+   HUNGER
+========================================================= */
+
+function updateHunger(dt){
+
+  state.hunger=
+    Math.max(
+      0,
+      state.hunger-dt*.7
+    );
+
+  if(state.hunger<=0){
+
+    state.hp-=
+      dt*2;
+
+    if(state.hp<=0){
+      respawn();
+    }
+  }
+}
+
+/* =========================================================
+   RESPAWN
+========================================================= */
+
+function respawn(){
+
+  state.hp=
+    Math.max(
+      1,
+      state.maxHp*.7
+    );
+
+  state.hunger=100;
+  state.stamina=100;
+
+  state.coins=
+    Math.max(
+      0,
+      state.coins-10
+    );
+
+  frog.position.set(
+    0,0,0
+  );
+
+  state.invulnerable=2;
+
+  message(
+    "You respawned! -10 🪙",
+    "#ff7777"
+  );
+
+  updateUI();
+}
+
+/* =========================================================
+   MUTATIONS
+========================================================= */
+
+function buyMutation(){
+
+  if(state.coins<40){
+
+    message(
+      "Need 40 coins!",
+      "#ff7777"
+    );
+
+    return;
+  }
+
+  state.coins-=40;
+
+  const choices=
+    mutationNames.slice(1);
+
+  state.mutation=
+    choices[
+      Math.floor(
+        Math.random()*
+        choices.length
+      )
+    ];
+
+  // Achievement reward is deliberately separate
+  // from the mutation purchase.
+  const firstMutation=
+    !state.achievements.has(
+      "Mutated"
+    );
+
+  if(firstMutation){
+    unlockAchievement("Mutated");
+  }
+
+  if(state.mutation==="Giant"){
+
+    state.size+=.5;
+    state.maxHp+=35;
+    state.hp=state.maxHp;
+  }
+
+  if(state.mutation==="Fire"){
+    state.damage*=1.2;
+  }
+
+  if(state.mutation==="Poison"){
+    state.damage*=1.1;
+  }
+
+  if(state.mutation==="Stealth"){
+    state.speed*=1.2;
+  }
+
+  frog.scale.set(
+    state.size,
+    state.size,
+    state.size
+  );
+
+  message(
+    "MUTATION: "+
+    state.mutation,
+    "#9dff00"
+  );
+
+  updateUI();
+}
+
+/* =========================================================
+   HEAL
+========================================================= */
+
+function heal(){
+
+  if(state.coins<10){
+
+    message(
+      "Need 10 coins!",
+      "#ff7777"
+    );
+
+    return;
+  }
+
+  if(state.hp>=state.maxHp){
+
+    message(
+      "Already full HP",
+      "#ffffff"
+    );
+
+    return;
+  }
+
+  state.coins-=10;
+
+  state.hp=
+    Math.min(
+      state.maxHp,
+      state.hp+35
+    );
+
+  updateUI();
+}
+
+/* =========================================================
+   REBIRTH
+========================================================= */
+
+function rebirth(){
+
+  if(state.level<10){
+
+    message(
+      "Reach level 10 first!",
+      "#ff7777"
+    );
+
+    return;
+  }
+
+  state.rebirths++;
+
+  state.level=1;
+  state.xp=0;
+
+  state.size=1;
+
+  state.speed=
+    .16+
+    .02*state.rebirths;
+
+  state.damage=
+    12+
+    state.rebirths*8;
+
+  state.maxHp=
+    100+
+    state.rebirths*25;
+
+  state.hp=
+    state.maxHp;
+
+  state.stamina=100;
+  state.hunger=100;
+
+  state.mutation="None";
+
+  frog.scale.set(
+    1,1,1
+  );
+
+  // Only the first rebirth grants the achievement reward.
+  unlockAchievement("Rebirth");
+
+  message(
+    "♻️ REBIRTH! Permanent power gained!",
+    "#9dff00"
+  );
+
+  updateUI();
+}
+
+/* =========================================================
+   RANDOM EVENTS
+========================================================= */
+
+function randomEvents(dt){
+
+  eventTimer-=dt;
+
+  if(eventTimer>0){
+    return;
+  }
+
+  eventTimer=
+    25+
+    Math.random()*25;
+
+  const roll=
+    Math.random();
+
+  if(roll<.35){
+
+    for(let i=0;i<5;i++){
+      createAnimal(7);
+    }
+
+    message(
+      "🐦 BIRD SWARM!",
+      "#55aaff"
+    );
+
+  }else if(roll<.65){
+
+    state.coins+=20;
+
+    message(
+      "💰 TREASURE EVENT! +20",
+      "#ffe229"
+    );
+
+  }else if(roll<.85){
+
+    state.stamina=100;
+
+    state.hp=
+      Math.min(
+        state.maxHp,
+        state.hp+20
+      );
+
+    state.hunger=100;
+
+    message(
+      "🌧️ RAIN HEALS YOU!",
+      "#55ddff"
+    );
+
+  }else{
+
+    const bossPosition=
+      frog.position.clone();
+
+    const direction=
+      new THREE.Vector3(
+        Math.sin(cameraAngle),
+        0,
+        Math.cos(cameraAngle)
+      );
+
+    bossPosition.addScaledVector(
+      direction,
+      14
+    );
+
+    bossPosition.x=
+      THREE.MathUtils.clamp(
+        bossPosition.x,
+        -65,
+        65
+      );
+
+    bossPosition.z=
+      THREE.MathUtils.clamp(
+        bossPosition.z,
+        -65,
+        65
+      );
+
+    createAnimal(
+      6,
+      true,
+      bossPosition
+    );
+
+    message(
+      "👑 BOSS TURTLE!",
+      "#ff4444"
+    );
+  }
+}
+
+/* =========================================================
+   DAY / NIGHT
+========================================================= */
+
+function updateWorld(dt){
+
+  worldTime+=
+    dt*.35;
+
+  const daylight=
+    (Math.sin(worldTime)+1)/2;
+
+  sun.intensity=
+    .65+
+    daylight*1.5;
+
+  hemi.intensity=
+    .8+
+    daylight*1.3;
+
+  const targetColor=
+    daylight>.3
+      ? new THREE.Color(0x86d9ff)
+      : new THREE.Color(0x101a45);
+
+  scene.background.lerp(
+    targetColor,
+    .015
+  );
+}
+
+/* =========================================================
+   CAMERA
+========================================================= */
+
+renderer.domElement.addEventListener(
+  "mousedown",
+  e=>{
+    mouseDown=true;
+    lastMouseX=e.clientX;
+  }
 );
+
+addEventListener(
+  "mouseup",
+  ()=>{
+    mouseDown=false;
+  }
+);
+
+addEventListener(
+  "mousemove",
+  e=>{
+
+    if(!mouseDown){
+      return;
+    }
+
+    cameraAngle-=
+      (e.clientX-lastMouseX)*
+      .006;
+
+    lastMouseX=
+      e.clientX;
+  }
+);
+
+function updateCamera(){
+
+  const target=
+    frog.position.clone();
+
+  target.y+=1;
+
+  const distance=
+    9+
+    state.size*1.4;
+
+  const desired=
+    new THREE.Vector3(
+      target.x+
+        Math.sin(cameraAngle)*
+        distance,
+
+      target.y+
+        5.5+
+        state.size*.3,
+
+      target.z+
+        Math.cos(cameraAngle)*
+        distance
+    );
+
+  camera.position.lerp(
+    desired,
+    .12
+  );
+
+  camera.lookAt(target);
+}
+
+/* =========================================================
+   KEYBOARD
+========================================================= */
+
+addEventListener(
+  "keydown",
+  e=>{
+
+    const k=
+      e.key.toLowerCase();
+
+    keys[k]=true;
+
+    if(e.code==="Space"){
+
+      e.preventDefault();
+
+      attack();
+    }
+
+    if(
+      k==="e" &&
+      !e.repeat
+    ){
+      ability();
+    }
+  }
+);
+
+addEventListener(
+  "keyup",
+  e=>{
+    keys[
+      e.key.toLowerCase()
+    ]=false;
+  }
+);
+
+/*
+  Important mobile fix:
+  pointercancel and window-level pointerup
+  clear movement keys so controls cannot get stuck.
+*/
+
+function clearMovementKeys(){
+
+  keys.w=false;
+  keys.a=false;
+  keys.s=false;
+  keys.d=false;
+  keys.arrowup=false;
+  keys.arrowdown=false;
+  keys.arrowleft=false;
+  keys.arrowright=false;
+}
+
+document.querySelectorAll(
+  "[data-key]"
+).forEach(button=>{
+
+  const key=
+    button.dataset.key;
+
+  button.addEventListener(
+    "pointerdown",
+    e=>{
+      e.preventDefault();
+      keys[key]=true;
+
+      try{
+        button.setPointerCapture(
+          e.pointerId
+        );
+      }catch(_){}
+    }
+  );
+
+  const release=e=>{
+    e.preventDefault();
+    keys[key]=false;
+  };
+
+  button.addEventListener(
+    "pointerup",
+    release
+  );
+
+  button.addEventListener(
+    "pointercancel",
+    release
+  );
+
+  button.addEventListener(
+    "pointerleave",
+    release
+  );
+});
+
+addEventListener(
+  "blur",
+  clearMovementKeys
+);
+
+document.addEventListener(
+  "visibilitychange",
+  ()=>{
+    if(document.hidden){
+      clearMovementKeys();
+      mouseDown=false;
+    }
+  }
+);
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+$("attackBtn")
+  .addEventListener(
+    "click",
+    attack
+  );
+
+$("healBtn")
+  .addEventListener(
+    "click",
+    heal
+  );
+
+$("mutateBtn")
+  .addEventListener(
+    "click",
+    buyMutation
+  );
+
+$("rebirthBtn")
+  .addEventListener(
+    "click",
+    rebirth
+  );
+
+/* =========================================================
+   COOLDOWNS
+========================================================= */
+
+function updateCooldowns(dt){
+
+  state.attackCooldown=
+    Math.max(
+      0,
+      state.attackCooldown-dt
+    );
+
+  state.abilityCooldown=
+    Math.max(
+      0,
+      state.abilityCooldown-dt
+    );
+
+  state.invulnerable=
+    Math.max(
+      0,
+      state.invulnerable-dt
+    );
+}
+
+/* =========================================================
+   STATE VALIDATION
+========================================================= */
+
+function validateState(){
+
+  const numericDefaults={
+    level:1,
+    xp:0,
+    coins:0,
+    hp:100,
+    maxHp:100,
+    stamina:100,
+    hunger:100,
+    size:1,
+    speed:.16,
+    damage:12,
+    rebirths:0,
+    kills:0,
+    questKills:0,
+    questGoal:3,
+    attackCooldown:0,
+    abilityCooldown:0,
+    invulnerable:0,
+    score:0
+  };
+
+  for(
+    const [key,defaultValue]
+    of Object.entries(numericDefaults)
+  ){
+
+    if(
+      !Number.isFinite(
+        state[key]
+      )
+    ){
+
+      state[key]=defaultValue;
+    }
+  }
+
+  state.level=
+    Math.max(
+      1,
+      Math.floor(state.level)
+    );
+
+  state.xp=
+    Math.max(0,state.xp);
+
+  state.coins=
+    Math.max(0,state.coins);
+
+  state.maxHp=
+    Math.max(
+      1,
+      state.maxHp
+    );
+
+  state.hp=
+    THREE.MathUtils.clamp(
+      state.hp,
+      0,
+      state.maxHp
+    );
+
+  state.stamina=
+    THREE.MathUtils.clamp(
+      state.stamina,
+      0,
+      100
+    );
+
+  state.hunger=
+    THREE.MathUtils.clamp(
+      state.hunger,
+      0,
+      100
+    );
+
+  state.size=
+    Math.max(
+      .1,
+      state.size
+    );
+
+  state.speed=
+    Math.max(
+      .01,
+      state.speed
+    );
+
+  state.damage=
+    Math.max(
+      1,
+      state.damage
+    );
+
+  state.questGoal=
+    Math.max(
+      1,
+      Math.min(
+        30,
+        Math.floor(state.questGoal)
+      )
+    );
+}
+
+/* =========================================================
+   MAIN LOOP
+========================================================= */
+
+function animate(){
+
+  requestAnimationFrame(
+    animate
+  );
+
+  const dt=
+    Math.min(
+      clock.getDelta(),
+      .05
+    );
+
+  updateCooldowns(dt);
+
+  moveFrog(dt);
+
+  updateAnimals(dt);
+
+  updateParticles(dt);
+
+  updateWorld(dt);
+
+  updateHunger(dt);
+
+  randomEvents(dt);
+
+  updateCamera();
+
+  validateState();
+
+  updateUI();
+
+  renderer.render(
+    scene,
+    camera
+  );
+}
+
+/* =========================================================
+   RESIZE
+========================================================= */
+
+addEventListener(
+  "resize",
+  ()=>{
+
+    camera.aspect=
+      innerWidth/
+      innerHeight;
+
+    camera.updateProjectionMatrix();
+
+    renderer.setSize(
+      innerWidth,
+      innerHeight
+    );
+  }
+);
+
+/* =========================================================
+   START
+========================================================= */
+
+validateState();
+updateUI();
+animate();
 
 </script>
-
 </body>
 </html>
