@@ -2,190 +2,215 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Frog Evolution</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>🐸 Frog Evolution</title>
 
 <style>
-*{
-  box-sizing:border-box;
-  user-select:none;
-  -webkit-user-select:none;
+* {
+    box-sizing: border-box;
 }
 
-html,body{
-  margin:0;
-  width:100%;
-  height:100%;
-  overflow:hidden;
-  background:#79cfff;
-  font-family:Arial,Helvetica,sans-serif;
+body {
+    margin: 0;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    background: #06140b;
+    color: white;
 }
 
-canvas{
-  position:fixed;
-  inset:0;
-  width:100%;
-  height:100%;
-  display:block;
-  touch-action:none;
+canvas {
+    display: block;
+    background: #72c95b;
 }
 
-#ui{
-  position:fixed;
-  top:12px;
-  left:12px;
-  z-index:5;
-  width:290px;
-  color:white;
-  text-shadow:2px 2px 3px #000;
-  pointer-events:none;
+#hud {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 10;
+
+    width: 280px;
+    padding: 15px;
+
+    border-radius: 16px;
+
+    background: rgba(10, 25, 15, .85);
+    border: 2px solid rgba(255,255,255,.2);
+
+    box-shadow: 0 8px 30px rgba(0,0,0,.4);
 }
 
-.title{
-  font-size:25px;
-  font-weight:900;
-  margin-bottom:7px;
+#title {
+    font-size: 22px;
+    font-weight: bold;
+    color: #8cff5b;
 }
 
-.panel{
-  background:rgba(0,0,0,.45);
-  border-radius:13px;
-  padding:10px;
-  backdrop-filter:blur(5px);
+#evolution {
+    margin-top: 5px;
+    font-size: 18px;
 }
 
-.bar{
-  height:13px;
-  border:2px solid white;
-  background:#222;
-  border-radius:8px;
-  overflow:hidden;
-  margin:3px 0 7px;
+.bar {
+    height: 13px;
+    margin-top: 8px;
+
+    background: #172017;
+    border-radius: 20px;
+    overflow: hidden;
 }
 
-.fill{
-  height:100%;
-  width:50%;
+#xpBar {
+    height: 100%;
+    width: 0%;
+
+    background: linear-gradient(
+        90deg,
+        #00ff88,
+        #d6ff00
+    );
 }
 
-#hp{background:#ff3e3e}
-#xp{background:#ffd928}
-#stamina{background:#35d9ff}
-#hunger{background:#ff9633}
-
-#side{
-  position:fixed;
-  top:12px;
-  right:12px;
-  z-index:5;
-  width:230px;
-  color:white;
-  text-shadow:2px 2px 3px #000;
+#coins {
+    margin-top: 8px;
+    color: #ffd84a;
 }
 
-.box{
-  background:rgba(0,0,0,.45);
-  border-radius:13px;
-  padding:10px;
+#players {
+    margin-top: 5px;
+    color: #8fdfff;
 }
 
-button{
-  border:0;
-  border-radius:10px;
-  padding:10px 12px;
-  margin:3px;
-  font-weight:bold;
-  cursor:pointer;
-  color:#173c1d;
-  background:#fff;
+#status {
+    margin-top: 8px;
+    color: #aaa;
+    font-size: 12px;
 }
 
-button:active{
-  transform:scale(.94);
+#evolveMessage {
+    position: fixed;
+
+    left: 50%;
+    top: 50%;
+
+    transform: translate(-50%,-50%);
+
+    z-index: 20;
+
+    display: none;
+
+    font-size: 55px;
+    font-weight: bold;
+
+    color: #c8ff5a;
+
+    text-shadow:
+        0 0 10px #00ff55,
+        0 0 30px #00ff55,
+        0 0 60px #fff;
+
+    pointer-events: none;
 }
 
-#message{
-  position:fixed;
-  z-index:20;
-  left:50%;
-  top:48%;
-  transform:translate(-50%,-50%);
-  color:white;
-  font-size:38px;
-  font-weight:900;
-  text-align:center;
-  text-shadow:3px 3px 7px #000;
-  opacity:0;
-  pointer-events:none;
-  transition:opacity .2s;
+#instructions {
+    position: fixed;
+
+    bottom: 15px;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    padding: 10px 18px;
+
+    border-radius: 20px;
+
+    background: rgba(0,0,0,.65);
+
+    color: white;
+
+    z-index: 10;
+
+    font-size: 14px;
 }
 
-#help{
-  position:fixed;
-  left:50%;
-  bottom:10px;
-  transform:translateX(-50%);
-  z-index:5;
-  color:white;
-  background:rgba(0,0,0,.35);
-  padding:7px 12px;
-  border-radius:10px;
-  font-size:13px;
-  text-shadow:1px 1px 2px #000;
+#connection {
+    position: fixed;
+
+    top: 15px;
+    right: 15px;
+
+    z-index: 10;
+
+    padding: 10px 14px;
+
+    border-radius: 20px;
+
+    background: rgba(0,0,0,.7);
+
+    font-size: 13px;
 }
 
-#mobile{
-  display:none;
-  position:fixed;
-  z-index:10;
-  bottom:15px;
-  right:15px;
+.connected {
+    color: #5cff75;
 }
 
-.pad{
-  display:grid;
-  grid-template-columns:55px 55px 55px;
-  gap:4px;
+.disconnected {
+    color: #ff5252;
 }
 
-.pad button{
-  width:55px;
-  height:50px;
-  padding:0;
-  font-size:20px;
-  background:rgba(255,255,255,.75);
+/* Mobile buttons */
+
+#mobileControls {
+    display: none;
+
+    position: fixed;
+    bottom: 25px;
+    left: 0;
+
+    width: 100%;
+
+    z-index: 30;
+
+    pointer-events: none;
 }
 
-#attack{
-  width:170px;
-  height:55px;
-  background:#ffe044;
-  font-size:16px;
+.mobileButton {
+    pointer-events: auto;
+
+    width: 65px;
+    height: 65px;
+
+    margin: 5px;
+
+    border-radius: 50%;
+
+    border: 2px solid white;
+
+    background: rgba(0,0,0,.55);
+
+    color: white;
+
+    font-size: 25px;
 }
 
-@media(max-width:700px){
+#mobileLeft {
+    margin-left: 20px;
+}
 
-  #ui{
-    width:190px;
-    font-size:11px;
-  }
+@media(max-width:700px) {
+    #mobileControls {
+        display: flex;
+        justify-content: space-between;
+    }
 
-  .title{
-    font-size:18px;
-  }
+    #instructions {
+        display: none;
+    }
 
-  #side{
-    width:170px;
-    font-size:11px;
-  }
-
-  #help{
-    display:none;
-  }
-
-  #mobile{
-    display:block;
-  }
+    #hud {
+        width: 230px;
+        padding: 10px;
+    }
 }
 </style>
 </head>
@@ -194,2409 +219,1535 @@ button:active{
 
 <canvas id="game"></canvas>
 
-<div id="ui">
-  <div class="title">🐸 FROG EVOLUTION</div>
+<div id="hud">
+    <div id="title">🐸 FROG EVOLUTION</div>
 
-  <div class="panel">
-
-    <b id="evolution">Tiny Frog</b>
-
-    <div>
-      Level:
-      <span id="level">1</span>
-      · Size:
-      <span id="size">1.0</span>x
-    </div>
-
-    <div>❤️ HP</div>
-    <div class="bar">
-      <div id="hp" class="fill"></div>
+    <div id="evolution">
+        🥚 Egg
     </div>
 
     <div>
-      ⭐ XP:
-      <span id="xpText">0/35</span>
+        XP:
+        <span id="xpText">0 / 100</span>
     </div>
 
     <div class="bar">
-      <div id="xp" class="fill"></div>
+        <div id="xpBar"></div>
     </div>
 
-    <div>⚡ Stamina</div>
-    <div class="bar">
-      <div id="stamina" class="fill"></div>
+    <div id="coins">
+        🪙 Coins: 0
     </div>
 
-    <div>🍖 Hunger</div>
-    <div class="bar">
-      <div id="hunger" class="fill"></div>
+    <div id="players">
+        👥 Players: 1
     </div>
 
-    <div>🪙 Coins: <span id="coins">0</span></div>
-    <div>🧬 Mutation: <span id="mutation">None</span></div>
-
-  </div>
+    <div id="status">
+        Connecting...
+    </div>
 </div>
 
-<div id="side">
-
-  <div class="box">
-
-    <b>📜 QUEST</b>
-
-    <div id="questText">
-      Defeat 3 animals
-    </div>
-
-    <div>
-      Progress:
-      <span id="quest">0/3</span>
-    </div>
-
-    <hr>
-
-    🏆 Achievements:
-    <span id="achievements">0</span>
-
-    <br>
-
-    📖 Discoveries:
-    <span id="discoveries">0</span>
-
-    <br>
-
-    ♻️ Rebirths:
-    <span id="rebirths">0</span>
-
-  </div>
-
-  <div style="margin-top:6px">
-
-    <button onclick="heal()">💚 Heal 10</button>
-
-    <button onclick="mutate()">🧬 Mutate 40</button>
-
-    <button onclick="rebirth()">♻️ Rebirth</button>
-
-  </div>
-
+<div id="connection" class="disconnected">
+    🔴 Connecting
 </div>
 
-<div id="message"></div>
-
-<div id="help">
-  WASD / Arrows = Move · SPACE = Attack · E = Special · SHIFT = Sprint · Drag = Camera
+<div id="evolveMessage">
+    🐸 EVOLVED!
 </div>
 
-<div id="mobile">
+<div id="instructions">
+    WASD / Arrow Keys = Move • Collect 🍎 food to evolve
+</div>
 
-  <div class="pad">
-
-    <span></span>
-    <button data-key="w">▲</button>
-    <span></span>
-
-    <button data-key="a">◀</button>
-    <button data-key="s">▼</button>
-    <button data-key="d">▶</button>
-
-  </div>
-
-  <button id="attack" onclick="attack()">
-    🐸 ATTACK
-  </button>
-
+<div id="mobileControls">
+    <button class="mobileButton" id="mobileLeft">◀</button>
+    <button class="mobileButton" id="mobileUp">▲</button>
+    <button class="mobileButton" id="mobileDown">▼</button>
+    <button class="mobileButton" id="mobileRight">▶</button>
 </div>
 
 <script>
 
-/* =========================================================
-   CANVAS
-========================================================= */
+/*
+============================================================
+SERVER SETTINGS
+============================================================
 
-const canvas =
-  document.getElementById("game");
+For testing on your computer:
 
-const ctx =
-  canvas.getContext("2d");
+ws://localhost:3000
 
-let W = innerWidth;
-let H = innerHeight;
+When your multiplayer server is online, change this to:
 
-function resize(){
+wss://YOUR-SERVER-DOMAIN.com
 
-  W=innerWidth;
-  H=innerHeight;
+GitHub Pages normally uses HTTPS, so a production server
+should use WSS instead of WS.
+*/
 
-  canvas.width=W;
-  canvas.height=H;
+const SERVER_URL = "ws://localhost:3000";
+
+
+/*
+============================================================
+CANVAS
+============================================================
+*/
+
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 }
 
-addEventListener("resize",resize);
-
+window.addEventListener("resize", resize);
 resize();
 
 
-/* =========================================================
-   GAME STATE
-========================================================= */
+/*
+============================================================
+GAME DATA
+============================================================
+*/
 
-const game={
+const evolutions = [
+    {
+        name: "Egg",
+        emoji: "🥚",
+        required: 0,
+        size: 18,
+        color: "#eeeeee"
+    },
+    {
+        name: "Tadpole",
+        emoji: "🐟",
+        required: 100,
+        size: 22,
+        color: "#4da6ff"
+    },
+    {
+        name: "Tiny Frog",
+        emoji: "🐸",
+        required: 250,
+        size: 27,
+        color: "#6bdc45"
+    },
+    {
+        name: "Green Frog",
+        emoji: "🐸",
+        required: 500,
+        size: 34,
+        color: "#27b83d"
+    },
+    {
+        name: "Tree Frog",
+        emoji: "🐸",
+        required: 900,
+        size: 42,
+        color: "#20e890"
+    },
+    {
+        name: "Poison Frog",
+        emoji: "🐸",
+        required: 1500,
+        size: 50,
+        color: "#a855ff"
+    },
+    {
+        name: "Mega Frog",
+        emoji: "🐸",
+        required: 2500,
+        size: 60,
+        color: "#ff4d7d"
+    },
+    {
+        name: "King Frog",
+        emoji: "👑",
+        required: 4000,
+        size: 70,
+        color: "#ffd23f"
+    },
+    {
+        name: "Cosmic Frog",
+        emoji: "🌌",
+        required: 6500,
+        size: 82,
+        color: "#00e5ff"
+    },
+    {
+        name: "Legendary Frog",
+        emoji: "🐸",
+        required: 10000,
+        size: 95,
+        color: "#ff7b00"
+    }
+];
 
-  level:1,
-  xp:0,
 
-  coins:0,
+/*
+============================================================
+LOCAL PLAYER
+============================================================
+*/
 
-  hp:100,
-  maxHp:100,
+let myPlayer = {
+    id: null,
 
-  stamina:100,
-  hunger:100,
+    x: 1500,
+    y: 1500,
 
-  size:1,
-  speed:3,
-  damage:12,
+    xp: 0,
+    coins: 0,
 
-  rebirths:0,
+    evolution: 0,
 
-  mutation:"None",
-
-  kills:0,
-
-  questKills:0,
-  questGoal:3,
-
-  achievements:new Set(),
-  discoveries:new Set(),
-
-  attackCooldown:0,
-  specialCooldown:0,
-  invulnerable:0,
-
-  cameraX:0,
-  cameraY:0,
-
-  worldTime:0,
-  eventTimer:25
-
+    name: "Frog"
 };
 
+let otherPlayers = {};
 
-/* =========================================================
-   EVOLUTIONS
-========================================================= */
+let foods = [];
 
-const evolutions=[
-  "Tiny Frog",
-  "Young Frog",
-  "Mega Frog",
-  "Jungle Frog",
-  "Armored Frog",
-  "Titan Frog",
-  "Ancient Frog",
-  "Mythic Frog",
-  "Frog King",
-  "COSMIC FROG"
-];
+let worldWidth = 3000;
+let worldHeight = 3000;
 
-const colors=[
-  "#35c94a",
-  "#22aa55",
-  "#168b66",
-  "#6d4bcc",
-  "#ff8c32",
-  "#d93472",
-  "#3cccf2",
-  "#ffdf4d",
-  "#f5f5f5",
-  "#9dff00"
-];
+let cameraX = 0;
+let cameraY = 0;
 
 
-/* =========================================================
-   INPUT
-========================================================= */
+/*
+============================================================
+KEYBOARD
+============================================================
+*/
 
-const keys={};
+const keys = {};
 
-addEventListener("keydown",e=>{
+document.addEventListener("keydown", e => {
 
-  const key=e.key.toLowerCase();
-
-  keys[key]=true;
-
-  if(e.code==="Space"){
-    e.preventDefault();
-    attack();
-  }
-
-  if(
-    key==="e" &&
-    !e.repeat
-  ){
-    special();
-  }
+    keys[e.key.toLowerCase()] = true;
 
 });
 
-addEventListener("keyup",e=>{
+document.addEventListener("keyup", e => {
 
-  keys[e.key.toLowerCase()]=false;
-
-});
-
-function clearKeys(){
-
-  for(const key in keys){
-    keys[key]=false;
-  }
-
-}
-
-addEventListener("blur",clearKeys);
-
-document.addEventListener(
-  "visibilitychange",
-  ()=>{
-    if(document.hidden){
-      clearKeys();
-    }
-  }
-);
-
-
-/* =========================================================
-   MOBILE
-========================================================= */
-
-document
-.querySelectorAll("[data-key]")
-.forEach(button=>{
-
-  const key=
-    button.dataset.key;
-
-  button.addEventListener(
-    "pointerdown",
-    e=>{
-      e.preventDefault();
-      keys[key]=true;
-    }
-  );
-
-  const release=e=>{
-    e.preventDefault();
-    keys[key]=false;
-  };
-
-  button.addEventListener(
-    "pointerup",
-    release
-  );
-
-  button.addEventListener(
-    "pointercancel",
-    release
-  );
-
-  button.addEventListener(
-    "pointerleave",
-    release
-  );
+    keys[e.key.toLowerCase()] = false;
 
 });
 
 
-/* =========================================================
-   CAMERA DRAG
-========================================================= */
+/*
+============================================================
+MOBILE CONTROLS
+============================================================
+*/
 
-let dragging=false;
-let lastX=0;
+function holdButton(button, key) {
 
-canvas.addEventListener(
-  "pointerdown",
-  e=>{
-    dragging=true;
-    lastX=e.clientX;
-  }
-);
+    button.addEventListener("touchstart", e => {
 
-canvas.addEventListener(
-  "pointerup",
-  ()=>{
-    dragging=false;
-  }
-);
+        e.preventDefault();
 
-canvas.addEventListener(
-  "pointercancel",
-  ()=>{
-    dragging=false;
-  }
-);
-
-canvas.addEventListener(
-  "pointermove",
-  e=>{
-
-    if(!dragging)return;
-
-    const dx=e.clientX-lastX;
-
-    game.cameraX+=dx*.7;
-
-    lastX=e.clientX;
-  }
-);
-
-
-/* =========================================================
-   WORLD
-========================================================= */
-
-const WORLD=2600;
-
-const trees=[];
-const rocks=[];
-const ponds=[];
-const animals=[];
-const particles=[];
-
-
-/* =========================================================
-   RANDOM
-========================================================= */
-
-function rand(a,b){
-  return a+Math.random()*(b-a);
-}
-
-function distance(a,b){
-
-  return Math.hypot(
-    a.x-b.x,
-    a.y-b.y
-  );
-}
-
-
-/* =========================================================
-   CREATE WORLD OBJECTS
-========================================================= */
-
-for(let i=0;i<170;i++){
-
-  trees.push({
-    x:rand(-WORLD/2,WORLD/2),
-    y:rand(-WORLD/2,WORLD/2),
-    size:rand(.7,1.5)
-  });
-
-}
-
-for(let i=0;i<130;i++){
-
-  rocks.push({
-    x:rand(-WORLD/2,WORLD/2),
-    y:rand(-WORLD/2,WORLD/2),
-    size:rand(.5,1.3)
-  });
-
-}
-
-for(let i=0;i<12;i++){
-
-  ponds.push({
-    x:rand(-1000,1000),
-    y:rand(-1000,1000),
-    r:rand(60,130)
-  });
-
-}
-
-
-/* =========================================================
-   FROG
-========================================================= */
-
-const frog={
-  x:0,
-  y:0,
-  angle:0
-};
-
-
-/* =========================================================
-   ANIMAL TYPES
-========================================================= */
-
-const animalTypes=[
-
-  {
-    name:"Bug",
-    color:"#ffd126",
-    size:.4,
-    hp:15,
-    xp:4,
-    coins:2,
-    speed:.8
-  },
-
-  {
-    name:"Fish",
-    color:"#ff7045",
-    size:.6,
-    hp:25,
-    xp:7,
-    coins:4,
-    speed:.9
-  },
-
-  {
-    name:"Mouse",
-    color:"#aaa",
-    size:.7,
-    hp:30,
-    xp:9,
-    coins:5,
-    speed:1
-  },
-
-  {
-    name:"Lizard",
-    color:"#55bd5a",
-    size:.85,
-    hp:40,
-    xp:12,
-    coins:7,
-    speed:.85
-  },
-
-  {
-    name:"Snake",
-    color:"#944bd2",
-    size:1,
-    hp:55,
-    xp:18,
-    coins:10,
-    speed:.9
-  },
-
-  {
-    name:"Crab",
-    color:"#ff5544",
-    size:1.2,
-    hp:75,
-    xp:25,
-    coins:14,
-    speed:.7
-  },
-
-  {
-    name:"Turtle",
-    color:"#357d52",
-    size:1.5,
-    hp:100,
-    xp:35,
-    coins:18,
-    speed:.5
-  },
-
-  {
-    name:"Bird",
-    color:"#55aaff",
-    size:1.4,
-    hp:120,
-    xp:45,
-    coins:25,
-    speed:1.4
-  }
-
-];
-
-
-/* =========================================================
-   ANIMALS
-========================================================= */
-
-function spawnAnimal(
-  typeIndex=null,
-  boss=false,
-  x=null,
-  y=null
-){
-
-  const index=
-    typeIndex===null
-      ? Math.floor(
-          Math.random()*
-          animalTypes.length
-        )
-      : Math.max(
-          0,
-          Math.min(
-            animalTypes.length-1,
-            typeIndex
-          )
-        );
-
-  const type=
-    animalTypes[index];
-
-  if(x===null){
-
-    do{
-      x=rand(
-        -WORLD/2+50,
-        WORLD/2-50
-      );
-
-      y=rand(
-        -WORLD/2+50,
-        WORLD/2-50
-      );
-
-    }while(
-      Math.hypot(
-        x-frog.x,
-        y-frog.y
-      )<150
-    );
-
-  }
-
-  animals.push({
-
-    x,
-    y,
-
-    type,
-
-    hp:
-      type.hp*
-      (boss?5:1),
-
-    maxHp:
-      type.hp*
-      (boss?5:1),
-
-    boss,
-
-    angle:Math.random()*Math.PI*2,
-
-    timer:Math.random()*10
-
-  });
-
-}
-
-for(let i=0;i<65;i++){
-  spawnAnimal();
-}
-
-
-/* =========================================================
-   PARTICLES
-========================================================= */
-
-function burst(
-  x,
-  y,
-  color="#fff",
-  amount=15
-){
-
-  for(let i=0;i<amount;i++){
-
-    particles.push({
-
-      x,
-      y,
-
-      vx:rand(-2,2),
-      vy:rand(-2,2),
-
-      life:rand(.3,.8),
-
-      color
+        keys[key] = true;
 
     });
 
-  }
+    button.addEventListener("touchend", e => {
 
+        e.preventDefault();
+
+        keys[key] = false;
+
+    });
+}
+
+holdButton(
+    document.getElementById("mobileLeft"),
+    "a"
+);
+
+holdButton(
+    document.getElementById("mobileRight"),
+    "d"
+);
+
+holdButton(
+    document.getElementById("mobileUp"),
+    "w"
+);
+
+holdButton(
+    document.getElementById("mobileDown"),
+    "s"
+);
+
+
+/*
+============================================================
+WEBSOCKET
+============================================================
+*/
+
+let socket;
+
+function connect() {
+
+    try {
+
+        socket =
+            new WebSocket(SERVER_URL);
+
+        socket.onopen = () => {
+
+            document.getElementById(
+                "connection"
+            ).textContent =
+                "🟢 Multiplayer Online";
+
+            document.getElementById(
+                "connection"
+            ).className =
+                "connected";
+
+            document.getElementById(
+                "status"
+            ).textContent =
+                "Connected to multiplayer";
+
+        };
+
+
+        socket.onclose = () => {
+
+            document.getElementById(
+                "connection"
+            ).textContent =
+                "🔴 Offline";
+
+            document.getElementById(
+                "connection"
+            ).className =
+                "disconnected";
+
+            document.getElementById(
+                "status"
+            ).textContent =
+                "Multiplayer server offline";
+        };
+
+
+        socket.onerror = () => {
+
+            document.getElementById(
+                "connection"
+            ).textContent =
+                "🔴 Connection Error";
+        };
+
+
+        socket.onmessage = event => {
+
+            const data =
+                JSON.parse(event.data);
+
+            handleServerMessage(data);
+        };
+
+    } catch(error) {
+
+        console.log(error);
+
+    }
 }
 
 
-/* =========================================================
-   XP
-========================================================= */
+/*
+============================================================
+SERVER MESSAGES
+============================================================
+*/
 
-function xpNeeded(){
+function handleServerMessage(data) {
 
-  return Math.max(
-    35,
-    20+
-    game.level*15+
-    game.rebirths*10
-  );
+    if (data.type === "welcome") {
 
-}
-
-
-function gainXP(amount){
-
-  if(!Number.isFinite(amount)){
-    return;
-  }
-
-  game.xp+=Math.max(0,amount);
-
-  let safety=0;
-
-  while(
-    game.xp>=xpNeeded() &&
-    safety<100
-  ){
-
-    game.xp-=xpNeeded();
-
-    evolve();
-
-    safety++;
-
-  }
-
-}
-
-
-/* =========================================================
-   EVOLVE
-========================================================= */
-
-function evolve(){
-
-  game.level++;
-
-  game.size+=.28;
-
-  game.speed+=.15;
-
-  game.damage+=5;
-
-  game.maxHp+=20;
-
-  game.hp=game.maxHp;
-
-  burst(
-    frog.x,
-    frog.y,
-    colors[
-      Math.min(
-        game.level-1,
-        colors.length-1
-      )
-    ],
-    40
-  );
-
-  if(game.level===3)
-    achievement("Mega Frog");
-
-  if(game.level===5)
-    achievement("Titan");
-
-  if(game.level===10)
-    achievement("COSMIC FROG");
-
-  showMessage(
-    "🧬 EVOLVED!",
-    "#ffe229"
-  );
-
-}
-
-
-/* =========================================================
-   ATTACK
-========================================================= */
-
-function attack(){
-
-  if(game.attackCooldown>0){
-    return;
-  }
-
-  game.attackCooldown=.35;
-
-  const range=
-    75*
-    game.size;
-
-  let target=null;
-
-  let closest=Infinity;
-
-  for(const animal of animals){
-
-    if(animal.dead)continue;
-
-    const d=
-      distance(
-        frog,
-        animal
-      );
-
-    if(
-      d<range &&
-      d<closest
-    ){
-
-      closest=d;
-      target=animal;
+        myPlayer.id =
+            data.id;
 
     }
 
-  }
 
-  if(!target){
+    if (data.type === "state") {
 
-    burst(
-      frog.x+
-        Math.cos(frog.angle)*30,
-      frog.y+
-        Math.sin(frog.angle)*30,
-      "#baffba",
-      5
-    );
+        otherPlayers =
+            data.players;
 
-    return;
-  }
+        foods =
+            data.foods;
 
-  let damage=game.damage;
+        if (data.world) {
 
-  if(game.mutation==="Fire")
-    damage*=1.35;
+            worldWidth =
+                data.world.width;
 
-  if(game.mutation==="Electric")
-    damage*=1.5;
-
-  if(game.mutation==="Giant")
-    damage*=1.25;
-
-  target.hp-=damage;
-
-  burst(
-    target.x,
-    target.y,
-    game.mutation==="Fire"
-      ? "#ff5522"
-      : "#ffff66",
-    12
-  );
-
-  if(target.hp<=0){
-
-    killAnimal(target);
-
-  }else{
-
-    const dx=
-      target.x-frog.x;
-
-    const dy=
-      target.y-frog.y;
-
-    const d=
-      Math.max(.001,
-        Math.hypot(dx,dy)
-      );
-
-    target.x+=dx/d*25;
-    target.y+=dy/d*25;
-
-  }
-
-}
-
-
-/* =========================================================
-   SPECIAL
-========================================================= */
-
-function special(){
-
-  if(game.specialCooldown>0){
-    return;
-  }
-
-  game.specialCooldown=8;
-
-  const radius=
-    130*
-    game.size;
-
-  for(const animal of animals.slice()){
-
-    if(animal.dead)continue;
-
-    if(
-      distance(
-        frog,
-        animal
-      )<=radius
-    ){
-
-      animal.hp-=
-        game.damage*2;
-
-      burst(
-        animal.x,
-        animal.y,
-        "#ffffff",
-        7
-      );
-
-      if(animal.hp<=0){
-        killAnimal(animal);
-      }
-
-    }
-
-  }
-
-  burst(
-    frog.x,
-    frog.y,
-    "#ffffff",
-    60
-  );
-
-  showMessage(
-    "💥 SPECIAL ATTACK!",
-    "#fff"
-  );
-
-}
-
-
-/* =========================================================
-   KILL
-========================================================= */
-
-function killAnimal(animal){
-
-  if(
-    !animal ||
-    animal.dead
-  ){
-    return;
-  }
-
-  animal.dead=true;
-
-  const type=animal.type;
-
-  const multiplier=
-    animal.boss?5:1;
-
-  game.kills++;
-
-  game.coins+=
-    type.coins*
-    multiplier;
-
-  game.questKills++;
-
-  game.discoveries.add(
-    type.name
-  );
-
-  gainXP(
-    type.xp*
-    multiplier
-  );
-
-  burst(
-    animal.x,
-    animal.y,
-    type.color,
-    animal.boss?45:18
-  );
-
-  if(game.kills===1)
-    achievement("First Hunt");
-
-  if(game.kills>=10)
-    achievement("Hunter");
-
-  if(game.kills>=50)
-    achievement("Apex");
-
-  if(
-    game.discoveries.size>=8
-  )
-    achievement("Explorer");
-
-  if(
-    game.questKills>=
-    game.questGoal
-  ){
-
-    game.questKills=0;
-
-    game.coins+=25;
-
-    game.questGoal=
-      Math.min(
-        30,
-        game.questGoal+3
-      );
-
-    showMessage(
-      "📜 QUEST COMPLETE! +25 🪙",
-      "#ffe229"
-    );
-
-  }
-
-}
-
-
-/* =========================================================
-   ACHIEVEMENTS
-========================================================= */
-
-function achievement(name){
-
-  if(game.achievements.has(name)){
-    return;
-  }
-
-  game.achievements.add(name);
-
-  game.coins+=15;
-
-  showMessage(
-    "🏆 "+name+" +15",
-    "#ffe229"
-  );
-
-}
-
-
-/* =========================================================
-   HEAL
-========================================================= */
-
-function heal(){
-
-  if(game.coins<10){
-
-    showMessage(
-      "Need 10 coins!",
-      "#ff5555"
-    );
-
-    return;
-  }
-
-  if(game.hp>=game.maxHp){
-
-    showMessage(
-      "❤️ HP FULL",
-      "#fff"
-    );
-
-    return;
-  }
-
-  game.coins-=10;
-
-  game.hp=
-    Math.min(
-      game.maxHp,
-      game.hp+35
-    );
-
-}
-
-
-/* =========================================================
-   MUTATION
-========================================================= */
-
-function mutate(){
-
-  if(game.coins<40){
-
-    showMessage(
-      "Need 40 coins!",
-      "#ff5555"
-    );
-
-    return;
-  }
-
-  game.coins-=40;
-
-  const mutations=[
-    "Fire",
-    "Ice",
-    "Poison",
-    "Electric",
-    "Giant",
-    "Stealth"
-  ];
-
-  game.mutation=
-    mutations[
-      Math.floor(
-        Math.random()*
-        mutations.length
-      )
-    ];
-
-  if(game.mutation==="Giant"){
-
-    game.size+=.5;
-
-    game.maxHp+=35;
-
-    game.hp=game.maxHp;
-
-  }
-
-  if(game.mutation==="Fire"){
-    game.damage*=1.2;
-  }
-
-  if(game.mutation==="Poison"){
-    game.damage*=1.1;
-  }
-
-  if(game.mutation==="Stealth"){
-    game.speed*=1.2;
-  }
-
-  achievement("Mutated");
-
-  showMessage(
-    "🧬 "+game.mutation+"!",
-    "#9dff00"
-  );
-
-}
-
-
-/* =========================================================
-   REBIRTH
-========================================================= */
-
-function rebirth(){
-
-  if(game.level<10){
-
-    showMessage(
-      "Reach level 10!",
-      "#ff5555"
-    );
-
-    return;
-  }
-
-  game.rebirths++;
-
-  game.level=1;
-  game.xp=0;
-
-  game.size=1;
-
-  game.speed=
-    3+
-    game.rebirths*.35;
-
-  game.damage=
-    12+
-    game.rebirths*8;
-
-  game.maxHp=
-    100+
-    game.rebirths*25;
-
-  game.hp=game.maxHp;
-
-  game.stamina=100;
-  game.hunger=100;
-
-  game.mutation="None";
-
-  // This achievement is only rewarded once.
-  achievement("Rebirth");
-
-  showMessage(
-    "♻️ REBIRTH!",
-    "#9dff00"
-  );
-
-}
-
-
-/* =========================================================
-   ENEMY AI
-========================================================= */
-
-function updateAnimals(dt){
-
-  for(const animal of animals){
-
-    if(animal.dead)continue;
-
-    const type=animal.type;
-
-    const dx=
-      frog.x-animal.x;
-
-    const dy=
-      frog.y-animal.y;
-
-    const d=
-      Math.hypot(dx,dy);
-
-    if(
-      (
-        type.size>
-        game.size*.9 ||
-        animal.boss
-      ) &&
-      d<150
-    ){
-
-      if(d>50){
-
-        animal.x+=
-          dx/d*
-          type.speed*
-          dt*
-          45;
-
-        animal.y+=
-          dy/d*
-          type.speed*
-          dt*
-          45;
-
-      }else{
-
-        if(
-          game.invulnerable<=0
-        ){
-
-          const damage=
-            4+
-            type.size*4;
-
-          game.hp-=damage;
-
-          game.invulnerable=.8;
-
-          showMessage(
-            "OUCH! -"+
-            Math.floor(damage),
-            "#ff5555"
-          );
-
-          if(game.hp<=0){
-            respawn();
-          }
-
+            worldHeight =
+                data.world.height;
         }
 
-      }
+        updatePlayerCount();
+    }
+}
 
-    }else{
 
-      animal.timer+=dt;
+/*
+============================================================
+SEND PLAYER POSITION
+============================================================
+*/
 
-      animal.x+=
-        Math.cos(
-          animal.timer+
-          animal.angle
-        )*
-        type.speed*
-        dt*
-        10;
+let networkTimer = 0;
 
-      animal.y+=
-        Math.sin(
-          animal.timer*.8+
-          animal.angle
-        )*
-        type.speed*
-        dt*
-        10;
+function sendPosition() {
 
+    if (
+        !socket ||
+        socket.readyState !== WebSocket.OPEN
+    ) {
+        return;
     }
 
-    animal.x=
-      Math.max(
-        -WORLD/2,
-        Math.min(
-          WORLD/2,
-          animal.x
-        )
-      );
+    networkTimer++;
 
-    animal.y=
-      Math.max(
-        -WORLD/2,
-        Math.min(
-          WORLD/2,
-          animal.y
-        )
-      );
+    if (networkTimer < 3)
+        return;
 
-  }
+    networkTimer = 0;
 
+    socket.send(
+        JSON.stringify({
+            type: "move",
+
+            x: myPlayer.x,
+            y: myPlayer.y,
+
+            xp: myPlayer.xp,
+            coins: myPlayer.coins,
+
+            evolution:
+                myPlayer.evolution
+        })
+    );
 }
 
 
-/* =========================================================
-   FROG MOVEMENT
-========================================================= */
+/*
+============================================================
+MOVEMENT
+============================================================
+*/
 
-function updateFrog(dt){
+function movePlayer() {
 
-  let x=0;
-  let y=0;
+    let speed =
+        5 +
+        myPlayer.evolution * .35;
 
-  if(keys.w || keys.arrowup)
-    y-=1;
+    let dx = 0;
+    let dy = 0;
 
-  if(keys.s || keys.arrowdown)
-    y+=1;
-
-  if(keys.a || keys.arrowleft)
-    x-=1;
-
-  if(keys.d || keys.arrowright)
-    x+=1;
-
-  const d=
-    Math.hypot(x,y);
-
-  if(d===0){
-
-    game.stamina=
-      Math.min(
-        100,
-        game.stamina+
-        dt*25
-      );
-
-    return;
-  }
-
-  x/=d;
-  y/=d;
-
-  let speed=
-    game.speed;
-
-  if(
-    keys.shift &&
-    game.stamina>0
-  ){
-
-    speed*=1.7;
-
-    game.stamina-=
-      dt*35;
-
-  }else{
-
-    game.stamina=
-      Math.min(
-        100,
-        game.stamina+
-        dt*20
-      );
-
-  }
-
-  frog.x+=
-    x*
-    speed*
-    60*
-    dt;
-
-  frog.y+=
-    y*
-    speed*
-    60*
-    dt;
-
-  if(x!==0 || y!==0){
-
-    frog.angle=
-      Math.atan2(y,x);
-
-  }
-
-  frog.x=
-    Math.max(
-      -WORLD/2,
-      Math.min(
-        WORLD/2,
-        frog.x
-      )
-    );
-
-  frog.y=
-    Math.max(
-      -WORLD/2,
-      Math.min(
-        WORLD/2,
-        frog.y
-      )
-    );
-
-}
-
-
-/* =========================================================
-   HUNGER
-========================================================= */
-
-function updateHunger(dt){
-
-  game.hunger=
-    Math.max(
-      0,
-      game.hunger-
-      dt*.7
-    );
-
-  if(game.hunger<=0){
-
-    game.hp-=
-      dt*2;
-
-    if(game.hp<=0){
-      respawn();
+    if (
+        keys["a"] ||
+        keys["arrowleft"]
+    ) {
+        dx--;
     }
 
-  }
-
-}
-
-
-/* =========================================================
-   RESPAWN
-========================================================= */
-
-function respawn(){
-
-  game.hp=
-    Math.max(
-      1,
-      game.maxHp*.7
-    );
-
-  game.hunger=100;
-  game.stamina=100;
-
-  game.coins=
-    Math.max(
-      0,
-      game.coins-10
-    );
-
-  frog.x=0;
-  frog.y=0;
-
-  game.invulnerable=2;
-
-  showMessage(
-    "💀 RESPAWN -10 🪙",
-    "#ff5555"
-  );
-
-}
-
-
-/* =========================================================
-   RANDOM EVENTS
-========================================================= */
-
-function events(dt){
-
-  game.eventTimer-=dt;
-
-  if(game.eventTimer>0)
-    return;
-
-  game.eventTimer=
-    rand(25,50);
-
-  const roll=Math.random();
-
-  if(roll<.35){
-
-    for(let i=0;i<8;i++)
-      spawnAnimal(7);
-
-    showMessage(
-      "🐦 BIRD SWARM!",
-      "#55aaff"
-    );
-
-  }else if(roll<.65){
-
-    game.coins+=20;
-
-    showMessage(
-      "💰 TREASURE! +20",
-      "#ffe229"
-    );
-
-  }else if(roll<.85){
-
-    game.hp=
-      Math.min(
-        game.maxHp,
-        game.hp+25
-      );
-
-    game.stamina=100;
-    game.hunger=100;
-
-    showMessage(
-      "🌧️ RAIN HEALS!",
-      "#55ddff"
-    );
-
-  }else{
-
-    const angle=
-      frog.angle;
-
-    const x=
-      frog.x+
-      Math.cos(angle)*300;
-
-    const y=
-      frog.y+
-      Math.sin(angle)*300;
-
-    spawnAnimal(
-      6,
-      true,
-      x,
-      y
-    );
-
-    showMessage(
-      "👑 BOSS TURTLE!",
-      "#ff4444"
-    );
-
-  }
-
-}
-
-
-/* =========================================================
-   PARTICLES
-========================================================= */
-
-function updateParticles(dt){
-
-  for(
-    let i=particles.length-1;
-    i>=0;
-    i--
-  ){
-
-    const p=particles[i];
-
-    p.x+=p.vx*60*dt;
-    p.y+=p.vy*60*dt;
-
-    p.vy+=.08;
-
-    p.life-=dt;
-
-    if(p.life<=0){
-
-      particles.splice(i,1);
-
+    if (
+        keys["d"] ||
+        keys["arrowright"]
+    ) {
+        dx++;
     }
 
-  }
-
-}
-
-
-/* =========================================================
-   CAMERA / PROJECTION
-========================================================= */
-
-function project(x,y){
-
-  const scale=
-    Math.min(W,H)/
-    850;
-
-  return {
-
-    x:
-      W/2+
-      (x-frog.x)*
-      scale,
-
-    y:
-      H/2+
-      (y-frog.y)*
-      scale*.72
-
-  };
-
-}
-
-
-/* =========================================================
-   DRAW BACKGROUND
-========================================================= */
-
-function drawWorld(){
-
-  const day=
-    (Math.sin(game.worldTime)+1)/2;
-
-  const top=
-    day>.3
-      ? "#70cdf5"
-      : "#101d4c";
-
-  const bottom=
-    day>.3
-      ? "#c5f0ff"
-      : "#17234f";
-
-  const gradient=
-    ctx.createLinearGradient(
-      0,0,
-      0,H
-    );
-
-  gradient.addColorStop(
-    0,
-    top
-  );
-
-  gradient.addColorStop(
-    1,
-    bottom
-  );
-
-  ctx.fillStyle=gradient;
-
-  ctx.fillRect(
-    0,
-    0,
-    W,
-    H
-  );
-
-}
-
-
-/* =========================================================
-   DRAW PONDS
-========================================================= */
-
-function drawPonds(){
-
-  for(const pond of ponds){
-
-    const p=
-      project(
-        pond.x,
-        pond.y
-      );
-
-    const r=
-      pond.r*
-      Math.min(W,H)/
-      850;
-
-    ctx.beginPath();
-
-    ctx.ellipse(
-      p.x,
-      p.y,
-      r,
-      r*.7,
-      0,
-      0,
-      Math.PI*2
-    );
-
-    ctx.fillStyle=
-      "#238fd0";
-
-    ctx.fill();
-
-    ctx.strokeStyle=
-      "rgba(255,255,255,.3)";
-
-    ctx.stroke();
-
-  }
-
-}
-
-
-/* =========================================================
-   DRAW TREES
-========================================================= */
-
-function drawTrees(){
-
-  for(const tree of trees){
-
-    const p=
-      project(
-        tree.x,
-        tree.y
-      );
-
-    const s=
-      tree.size*
-      Math.min(W,H)/
-      850;
-
-    if(
-      p.x<-60 ||
-      p.x>W+60 ||
-      p.y<-100 ||
-      p.y>H+100
-    ){
-      continue;
+    if (
+        keys["w"] ||
+        keys["arrowup"]
+    ) {
+        dy--;
     }
 
-    ctx.fillStyle="#74421f";
+    if (
+        keys["s"] ||
+        keys["arrowdown"]
+    ) {
+        dy++;
+    }
+
+
+    /*
+        Normalize diagonal movement
+    */
+
+    if (dx !== 0 && dy !== 0) {
+
+        dx *= .707;
+        dy *= .707;
+    }
+
+
+    myPlayer.x +=
+        dx * speed;
+
+    myPlayer.y +=
+        dy * speed;
+
+
+    /*
+        World boundaries
+    */
+
+    myPlayer.x =
+        Math.max(
+            50,
+            Math.min(
+                worldWidth - 50,
+                myPlayer.x
+            )
+        );
+
+    myPlayer.y =
+        Math.max(
+            50,
+            Math.min(
+                worldHeight - 50,
+                myPlayer.y
+            )
+        );
+
+
+    sendPosition();
+}
+
+
+/*
+============================================================
+FOOD
+============================================================
+*/
+
+function distance(a,b) {
+
+    return Math.sqrt(
+        (a.x-b.x)**2 +
+        (a.y-b.y)**2
+    );
+}
+
+
+function collectFood() {
+
+    for (
+        let i = foods.length - 1;
+        i >= 0;
+        i--
+    ) {
+
+        let food =
+            foods[i];
+
+        if (
+            distance(
+                myPlayer,
+                food
+            ) <
+            45 +
+            evolutions[
+                myPlayer.evolution
+            ].size
+        ) {
+
+            myPlayer.xp +=
+                food.value || 10;
+
+            myPlayer.coins +=
+                food.coins || 1;
+
+            foods.splice(i,1);
+
+            checkEvolution();
+
+            createParticles(
+                food.x,
+                food.y,
+                "#fff36b",
+                10
+            );
+
+            if (
+                socket &&
+                socket.readyState === WebSocket.OPEN
+            ) {
+
+                socket.send(
+                    JSON.stringify({
+                        type: "collect",
+                        foodId: food.id
+                    })
+                );
+            }
+        }
+    }
+}
+
+
+/*
+============================================================
+EVOLUTION
+============================================================
+*/
+
+function checkEvolution() {
+
+    let oldEvolution =
+        myPlayer.evolution;
+
+    for (
+        let i = evolutions.length - 1;
+        i >= 0;
+        i--
+    ) {
+
+        if (
+            myPlayer.xp >=
+            evolutions[i].required
+        ) {
+
+            myPlayer.evolution =
+                i;
+
+            break;
+        }
+    }
+
+
+    if (
+        myPlayer.evolution >
+        oldEvolution
+    ) {
+
+        showEvolution();
+
+        createParticles(
+            myPlayer.x,
+            myPlayer.y,
+            evolutions[
+                myPlayer.evolution
+            ].color,
+            50
+        );
+    }
+}
+
+
+function showEvolution() {
+
+    const message =
+        document.getElementById(
+            "evolveMessage"
+        );
+
+    message.textContent =
+        "✨ EVOLVED! ✨";
+
+    message.style.display =
+        "block";
+
+    setTimeout(() => {
+
+        message.style.display =
+            "none";
+
+    }, 1500);
+}
+
+
+/*
+============================================================
+PARTICLES
+============================================================
+*/
+
+let particles = [];
+
+function createParticles(
+    x,
+    y,
+    color,
+    amount
+) {
+
+    for (
+        let i=0;
+        i<amount;
+        i++
+    ) {
+
+        particles.push({
+
+            x:x,
+            y:y,
+
+            vx:
+                (Math.random()-.5)*10,
+
+            vy:
+                (Math.random()-.5)*10,
+
+            life:40,
+
+            color:color
+        });
+    }
+}
+
+
+function updateParticles() {
+
+    for (
+        let p of particles
+    ) {
+
+        p.x += p.vx;
+        p.y += p.vy;
+
+        p.vy += .15;
+
+        p.life--;
+    }
+
+    particles =
+        particles.filter(
+            p => p.life > 0
+        );
+}
+
+
+/*
+============================================================
+CAMERA
+============================================================
+*/
+
+function updateCamera() {
+
+    cameraX =
+        myPlayer.x -
+        canvas.width / 2;
+
+    cameraY =
+        myPlayer.y -
+        canvas.height / 2;
+
+    cameraX =
+        Math.max(
+            0,
+            Math.min(
+                worldWidth -
+                canvas.width,
+                cameraX
+            )
+        );
+
+    cameraY =
+        Math.max(
+            0,
+            Math.min(
+                worldHeight -
+                canvas.height,
+                cameraY
+            )
+        );
+}
+
+
+/*
+============================================================
+WORLD
+============================================================
+*/
+
+function drawWorld() {
+
+    /*
+        Grass
+    */
+
+    ctx.fillStyle =
+        "#63bd50";
 
     ctx.fillRect(
-      p.x-5*s,
-      p.y-45*s,
-      10*s,
-      45*s
+        0,
+        0,
+        canvas.width,
+        canvas.height
     );
 
-    ctx.beginPath();
 
-    ctx.arc(
-      p.x,
-      p.y-55*s,
-      28*s,
-      0,
-      Math.PI*2
+    /*
+        Grid / grass pattern
+    */
+
+    ctx.strokeStyle =
+        "rgba(0,80,30,.12)";
+
+    ctx.lineWidth = 1;
+
+    let grid = 80;
+
+    for (
+        let x =
+            -cameraX % grid;
+        x < canvas.width;
+        x += grid
+    ) {
+
+        ctx.beginPath();
+
+        ctx.moveTo(x,0);
+
+        ctx.lineTo(
+            x,
+            canvas.height
+        );
+
+        ctx.stroke();
+    }
+
+    for (
+        let y =
+            -cameraY % grid;
+        y < canvas.height;
+        y += grid
+    ) {
+
+        ctx.beginPath();
+
+        ctx.moveTo(0,y);
+
+        ctx.lineTo(
+            canvas.width,
+            y
+        );
+
+        ctx.stroke();
+    }
+
+
+    /*
+        Water areas
+    */
+
+    drawWater(
+        250,
+        500,
+        500,
+        300
     );
 
-    ctx.fillStyle="#1b8c38";
-
-    ctx.fill();
-
-    ctx.beginPath();
-
-    ctx.arc(
-      p.x-17*s,
-      p.y-47*s,
-      19*s,
-      0,
-      Math.PI*2
+    drawWater(
+        2100,
+        300,
+        600,
+        400
     );
 
-    ctx.fill();
 
-  }
+    /*
+        Trees
+    */
 
+    for (
+        let x=100;
+        x<worldWidth;
+        x+=220
+    ) {
+
+        for (
+            let y=120;
+            y<worldHeight;
+            y+=260
+        ) {
+
+            let variation =
+                Math.sin(
+                    x * .02 +
+                    y * .01
+                );
+
+            if (
+                Math.abs(
+                    variation
+                ) > .35
+            ) {
+
+                drawTree(
+                    x,
+                    y
+                );
+            }
+        }
+    }
 }
 
 
-/* =========================================================
-   DRAW ROCKS
-========================================================= */
+function drawWater(
+    worldX,
+    worldY,
+    width,
+    height
+) {
 
-function drawRocks(){
+    let x =
+        worldX -
+        cameraX;
 
-  for(const rock of rocks){
+    let y =
+        worldY -
+        cameraY;
 
-    const p=
-      project(
-        rock.x,
-        rock.y
-      );
+    ctx.fillStyle =
+        "#38a9dc";
 
-    const s=
-      rock.size*
-      Math.min(W,H)/
-      850;
+    ctx.beginPath();
+
+    ctx.roundRect(
+        x,
+        y,
+        width,
+        height,
+        80
+    );
+
+    ctx.fill();
+
+
+    ctx.strokeStyle =
+        "rgba(255,255,255,.25)";
+
+    ctx.lineWidth = 4;
+
+    for (
+        let i=0;
+        i<5;
+        i++
+    ) {
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            x+40,
+            y+50+i*50
+        );
+
+        ctx.quadraticCurveTo(
+            x+width/2,
+            y+20+i*50,
+            x+width-40,
+            y+50+i*50
+        );
+
+        ctx.stroke();
+    }
+}
+
+
+function drawTree(
+    worldX,
+    worldY
+) {
+
+    let x =
+        worldX -
+        cameraX;
+
+    let y =
+        worldY -
+        cameraY;
+
+    ctx.fillStyle =
+        "#70452a";
+
+    ctx.fillRect(
+        x-10,
+        y,
+        20,
+        65
+    );
+
+    ctx.fillStyle =
+        "#19733a";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        x,
+        y-10,
+        45,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fill();
+
+    ctx.fillStyle =
+        "#2d9147";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        x-25,
+        y+5,
+        30,
+        0,
+        Math.PI*2
+    );
+
+    ctx.arc(
+        x+25,
+        y+5,
+        30,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fill();
+}
+
+
+/*
+============================================================
+DRAW FOOD
+============================================================
+*/
+
+function drawFood(food) {
+
+    let x =
+        food.x -
+        cameraX;
+
+    let y =
+        food.y -
+        cameraY;
+
+    ctx.font = "25px Arial";
+
+    ctx.textAlign =
+        "center";
+
+    ctx.textBaseline =
+        "middle";
+
+    ctx.shadowColor =
+        "#ffff66";
+
+    ctx.shadowBlur = 15;
+
+    ctx.fillText(
+        food.type || "🍎",
+        x,
+        y
+    );
+
+    ctx.shadowBlur = 0;
+}
+
+
+/*
+============================================================
+DRAW FROG
+============================================================
+*/
+
+function drawFrog(
+    player,
+    isMe
+) {
+
+    let evolution =
+        evolutions[
+            player.evolution || 0
+        ];
+
+    let x =
+        player.x -
+        cameraX;
+
+    let y =
+        player.y -
+        cameraY;
+
+    let size =
+        evolution.size;
+
+
+    /*
+        Shadow
+    */
+
+    ctx.fillStyle =
+        "rgba(0,0,0,.25)";
 
     ctx.beginPath();
 
     ctx.ellipse(
-      p.x,
-      p.y,
-      17*s,
-      10*s,
-      0,
-      0,
-      Math.PI*2
-    );
-
-    ctx.fillStyle="#777";
-
-    ctx.fill();
-
-  }
-
-}
-
-
-/* =========================================================
-   DRAW ANIMAL
-========================================================= */
-
-function drawAnimal(animal){
-
-  if(animal.dead)
-    return;
-
-  const p=
-    project(
-      animal.x,
-      animal.y
-    );
-
-  const scale=
-    Math.min(W,H)/
-    850;
-
-  const s=
-    animal.type.size*
-    game.size*
-    22*
-    scale;
-
-  if(
-    p.x<-100 ||
-    p.x>W+100 ||
-    p.y<-100 ||
-    p.y>H+100
-  ){
-    return;
-  }
-
-  ctx.save();
-
-  ctx.translate(
-    p.x,
-    p.y
-  );
-
-  ctx.fillStyle=
-    animal.type.color;
-
-  ctx.beginPath();
-
-  ctx.ellipse(
-    0,
-    0,
-    s*1.25,
-    s*.75,
-    0,
-    0,
-    Math.PI*2
-  );
-
-  ctx.fill();
-
-  if(animal.boss){
-
-    ctx.strokeStyle="#ffd700";
-    ctx.lineWidth=4;
-
-    ctx.stroke();
-
-    ctx.fillStyle="#ffd700";
-
-    ctx.font=
-      `${Math.max(
-        10,
-        s
-      )}px Arial`;
-
-    ctx.textAlign="center";
-
-    ctx.fillText(
-      "👑",
-      0,
-      -s
-    );
-
-  }
-
-  // eyes
-
-  ctx.fillStyle="#fff";
-
-  ctx.beginPath();
-
-  ctx.arc(
-    -s*.4,
-    -s*.5,
-    s*.23,
-    0,
-    Math.PI*2
-  );
-
-  ctx.arc(
-    s*.4,
-    -s*.5,
-    s*.23,
-    0,
-    Math.PI*2
-  );
-
-  ctx.fill();
-
-  ctx.fillStyle="#111";
-
-  ctx.beginPath();
-
-  ctx.arc(
-    -s*.4,
-    -s*.5,
-    s*.1,
-    0,
-    Math.PI*2
-  );
-
-  ctx.arc(
-    s*.4,
-    -s*.5,
-    s*.1,
-    0,
-    Math.PI*2
-  );
-
-  ctx.fill();
-
-  // health bar
-
-  const barW=s*2.2;
-
-  ctx.fillStyle="#222";
-
-  ctx.fillRect(
-    -barW/2,
-    -s*1.25,
-    barW,
-    4
-  );
-
-  ctx.fillStyle="#45e45a";
-
-  ctx.fillRect(
-    -barW/2,
-    -s*1.25,
-    barW*
-    Math.max(
-      0,
-      animal.hp/
-      animal.maxHp
-    ),
-    4
-  );
-
-  ctx.restore();
-
-}
-
-
-/* =========================================================
-   DRAW FROG
-========================================================= */
-
-function drawFrog(){
-
-  const x=W/2;
-  const y=H/2;
-
-  const s=
-    38*
-    game.size;
-
-  ctx.save();
-
-  ctx.translate(
-    x,
-    y
-  );
-
-  ctx.rotate(
-    frog.angle+
-    Math.PI/2
-  );
-
-  // shadow
-
-  ctx.fillStyle=
-    "rgba(0,0,0,.25)";
-
-  ctx.beginPath();
-
-  ctx.ellipse(
-    0,
-    s*.55,
-    s*1.2,
-    s*.4,
-    0,
-    0,
-    Math.PI*2
-  );
-
-  ctx.fill();
-
-  // body
-
-  ctx.fillStyle=
-    colors[
-      Math.min(
-        game.level-1,
-        colors.length-1
-      )
-    ];
-
-  ctx.beginPath();
-
-  ctx.ellipse(
-    0,
-    0,
-    s*1.2,
-    s*.9,
-    0,
-    0,
-    Math.PI*2
-  );
-
-  ctx.fill();
-
-  // eyes
-
-  ctx.fillStyle="#fff";
-
-  ctx.beginPath();
-
-  ctx.arc(
-    -s*.48,
-    -s*.62,
-    s*.32,
-    0,
-    Math.PI*2
-  );
-
-  ctx.arc(
-    s*.48,
-    -s*.62,
-    s*.32,
-    0,
-    Math.PI*2
-  );
-
-  ctx.fill();
-
-  ctx.fillStyle="#111";
-
-  ctx.beginPath();
-
-  ctx.arc(
-    -s*.48,
-    -s*.64,
-    s*.13,
-    0,
-    Math.PI*2
-  );
-
-  ctx.arc(
-    s*.48,
-    -s*.64,
-    s*.13,
-    0,
-    Math.PI*2
-  );
-
-  ctx.fill();
-
-  // mouth
-
-  ctx.strokeStyle="#431111";
-
-  ctx.lineWidth=
-    Math.max(
-      2,
-      s*.07
-    );
-
-  ctx.beginPath();
-
-  ctx.arc(
-    0,
-    s*.08,
-    s*.45,
-    0,
-    Math.PI
-  );
-
-  ctx.stroke();
-
-  // mutation glow
-
-  if(game.mutation!=="None"){
-
-    ctx.strokeStyle=
-      game.mutation==="Fire"
-        ? "#ff5b20"
-        : game.mutation==="Ice"
-        ? "#68ddff"
-        : game.mutation==="Electric"
-        ? "#ffff35"
-        : "#baff5a";
-
-    ctx.lineWidth=4;
-
-    ctx.beginPath();
-
-    ctx.arc(
-      0,
-      0,
-      s*1.35,
-      0,
-      Math.PI*2
-    );
-
-    ctx.stroke();
-
-  }
-
-  ctx.restore();
-
-}
-
-
-/* =========================================================
-   DRAW PARTICLES
-========================================================= */
-
-function drawParticles(){
-
-  for(const p of particles){
-
-    const q=
-      project(
-        p.x,
-        p.y
-      );
-
-    ctx.globalAlpha=
-      Math.max(
+        x,
+        y+size*.55,
+        size,
+        size*.3,
         0,
-        p.life
-      );
-
-    ctx.fillStyle=p.color;
-
-    ctx.beginPath();
-
-    ctx.arc(
-      q.x,
-      q.y,
-      4,
-      0,
-      Math.PI*2
+        0,
+        Math.PI*2
     );
 
     ctx.fill();
 
-  }
 
-  ctx.globalAlpha=1;
+    /*
+        Glow
+    */
 
-}
+    ctx.shadowColor =
+        evolution.color;
 
-
-/* =========================================================
-   UI
-========================================================= */
-
-function updateUI(){
-
-  const need=
-    xpNeeded();
-
-  document.getElementById(
-    "evolution"
-  ).textContent=
-    evolutions[
-      Math.min(
-        game.level-1,
-        evolutions.length-1
-      )
-    ];
-
-  document.getElementById(
-    "level"
-  ).textContent=
-    game.level;
-
-  document.getElementById(
-    "size"
-  ).textContent=
-    game.size.toFixed(1);
-
-  document.getElementById(
-    "coins"
-  ).textContent=
-    Math.floor(game.coins);
-
-  document.getElementById(
-    "mutation"
-  ).textContent=
-    game.mutation;
-
-  document.getElementById(
-    "xpText"
-  ).textContent=
-    `${Math.floor(game.xp)}/${need}`;
-
-  document.getElementById(
-    "hp"
-  ).style.width=
-    `${Math.max(
-      0,
-      Math.min(
-        100,
-        game.hp/
-        game.maxHp*
-        100
-      )
-    )}%`;
-
-  document.getElementById(
-    "xp"
-  ).style.width=
-    `${Math.max(
-      0,
-      Math.min(
-        100,
-        game.xp/
-        need*
-        100
-      )
-    )}%`;
-
-  document.getElementById(
-    "stamina"
-  ).style.width=
-    game.stamina+"%";
-
-  document.getElementById(
-    "hunger"
-  ).style.width=
-    game.hunger+"%";
-
-  document.getElementById(
-    "quest"
-  ).textContent=
-    `${game.questKills}/${game.questGoal}`;
-
-  document.getElementById(
-    "achievements"
-  ).textContent=
-    game.achievements.size;
-
-  document.getElementById(
-    "discoveries"
-  ).textContent=
-    game.discoveries.size;
-
-  document.getElementById(
-    "rebirths"
-  ).textContent=
-    game.rebirths;
-
-}
+    ctx.shadowBlur =
+        isMe ? 20 : 10;
 
 
-/* =========================================================
-   MESSAGE
-========================================================= */
+    /*
+        Body
+    */
 
-let messageTimeout;
+    ctx.fillStyle =
+        evolution.color;
 
-function showMessage(
-  text,
-  color="#fff"
-){
+    ctx.beginPath();
 
-  const element=
-    document.getElementById(
-      "message"
+    ctx.arc(
+        x,
+        y,
+        size,
+        0,
+        Math.PI*2
     );
 
-  element.textContent=text;
+    ctx.fill();
 
-  element.style.color=color;
 
-  element.style.opacity=1;
+    /*
+        Eyes
+    */
 
-  clearTimeout(
-    messageTimeout
-  );
+    ctx.fillStyle =
+        "#fff";
 
-  messageTimeout=
-    setTimeout(
-      ()=>{
-        element.style.opacity=0;
-      },
-      1100
+    ctx.beginPath();
+
+    ctx.arc(
+        x-size*.4,
+        y-size*.65,
+        size*.3,
+        0,
+        Math.PI*2
     );
 
-}
-
-
-/* =========================================================
-   GAME LOOP
-========================================================= */
-
-let previous=
-  performance.now();
-
-function loop(now){
-
-  const dt=
-    Math.min(
-      .05,
-      (now-previous)/
-      1000
+    ctx.arc(
+        x+size*.4,
+        y-size*.65,
+        size*.3,
+        0,
+        Math.PI*2
     );
 
-  previous=now;
+    ctx.fill();
 
-  game.worldTime+=dt*.3;
 
-  game.attackCooldown=
-    Math.max(
-      0,
-      game.attackCooldown-dt
+    ctx.fillStyle =
+        "#111";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        x-size*.4,
+        y-size*.65,
+        size*.11,
+        0,
+        Math.PI*2
     );
 
-  game.specialCooldown=
-    Math.max(
-      0,
-      game.specialCooldown-dt
+    ctx.arc(
+        x+size*.4,
+        y-size*.65,
+        size*.11,
+        0,
+        Math.PI*2
     );
 
-  game.invulnerable=
-    Math.max(
-      0,
-      game.invulnerable-dt
+    ctx.fill();
+
+
+    /*
+        Mouth
+    */
+
+    ctx.strokeStyle =
+        "#183b16";
+
+    ctx.lineWidth = 3;
+
+    ctx.beginPath();
+
+    ctx.arc(
+        x,
+        y,
+        size*.45,
+        .15,
+        Math.PI-.15
     );
 
-  updateFrog(dt);
+    ctx.stroke();
 
-  updateAnimals(dt);
 
-  updateParticles(dt);
+    /*
+        Special evolution effects
+    */
 
-  updateHunger(dt);
+    if (
+        player.evolution >= 5
+    ) {
 
-  events(dt);
+        ctx.strokeStyle =
+            evolution.color;
 
-  // Remove defeated animals safely.
+        ctx.lineWidth = 3;
 
-  for(
-    let i=animals.length-1;
-    i>=0;
-    i--
-  ){
+        ctx.beginPath();
 
-    if(animals[i].dead){
+        ctx.arc(
+            x,
+            y,
+            size+8+
+            Math.sin(
+                Date.now()/150
+            )*4,
+            0,
+            Math.PI*2
+        );
 
-      animals.splice(
-        i,
-        1
-      );
-
-      setTimeout(
-        ()=>{
-          spawnAnimal();
-        },
-        650
-      );
-
+        ctx.stroke();
     }
 
-  }
 
-  ctx.clearRect(
-    0,
-    0,
-    W,
-    H
-  );
+    /*
+        King crown
+    */
 
-  drawWorld();
+    if (
+        player.evolution === 7
+    ) {
 
-  drawPonds();
+        ctx.font =
+            `${size}px Arial`;
 
-  drawRocks();
+        ctx.fillText(
+            "👑",
+            x,
+            y-size-5
+        );
+    }
 
-  drawTrees();
 
-  // Sort by world Y for simple depth.
+    /*
+        Name
+    */
 
-  animals
-    .slice()
-    .sort(
-      (a,b)=>a.y-b.y
-    )
-    .forEach(
-      drawAnimal
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle =
+        "white";
+
+    ctx.font =
+        "bold 13px Arial";
+
+    ctx.textAlign =
+        "center";
+
+    ctx.fillText(
+        isMe
+            ? "YOU"
+            : player.name ||
+              "Frog",
+        x,
+        y-size-25
     );
-
-  drawFrog();
-
-  drawParticles();
-
-  updateUI();
-
-  requestAnimationFrame(loop);
-
 }
 
 
-/* =========================================================
-   START
-========================================================= */
+/*
+============================================================
+DRAW OTHER PLAYERS
+============================================================
+*/
 
-updateUI();
+function drawOtherPlayers() {
 
-requestAnimationFrame(loop);
+    for (
+        const id in otherPlayers
+    ) {
+
+        if (
+            id === myPlayer.id
+        )
+            continue;
+
+        const player =
+            otherPlayers[id];
+
+        drawFrog(
+            player,
+            false
+        );
+    }
+}
+
+
+/*
+============================================================
+HUD
+============================================================
+*/
+
+function updateHUD() {
+
+    let evolution =
+        evolutions[
+            myPlayer.evolution
+        ];
+
+    document.getElementById(
+        "evolution"
+    ).textContent =
+        evolution.emoji +
+        " " +
+        evolution.name;
+
+
+    let next =
+        evolutions[
+            myPlayer.evolution + 1
+        ];
+
+
+    if (!next) {
+
+        document.getElementById(
+            "xpText"
+        ).textContent =
+            "MAX";
+
+        document.getElementById(
+            "xpBar"
+        ).style.width =
+            "100%";
+
+    } else {
+
+        let previous =
+            evolution.required;
+
+        let needed =
+            next.required -
+            previous;
+
+        let current =
+            myPlayer.xp -
+            previous;
+
+        let percentage =
+            Math.max(
+                0,
+                Math.min(
+                    100,
+                    current /
+                    needed *
+                    100
+                )
+            );
+
+        document.getElementById(
+            "xpText"
+        ).textContent =
+            myPlayer.xp +
+            " / " +
+            next.required;
+
+        document.getElementById(
+            "xpBar"
+        ).style.width =
+            percentage + "%";
+    }
+
+
+    document.getElementById(
+        "coins"
+    ).textContent =
+        "🪙 Coins: " +
+        myPlayer.coins;
+}
+
+
+function updatePlayerCount() {
+
+    let count =
+        Object.keys(
+            otherPlayers
+        ).length;
+
+    document.getElementById(
+        "players"
+    ).textContent =
+        "👥 Players: " +
+        Math.max(
+            1,
+            count
+        );
+}
+
+
+/*
+============================================================
+GAME LOOP
+============================================================
+*/
+
+function update() {
+
+    movePlayer();
+
+    collectFood();
+
+    updateParticles();
+
+    updateCamera();
+
+    updateHUD();
+}
+
+
+function draw() {
+
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    drawWorld();
+
+
+    /*
+        Food
+    */
+
+    for (
+        let food of foods
+    ) {
+
+        drawFood(food);
+    }
+
+
+    /*
+        Other players
+    */
+
+    drawOtherPlayers();
+
+
+    /*
+        Our frog
+    */
+
+    drawFrog(
+        myPlayer,
+        true
+    );
+
+
+    /*
+        Particles
+    */
+
+    for (
+        let p of particles
+    ) {
+
+        let x =
+            p.x -
+            cameraX;
+
+        let y =
+            p.y -
+            cameraY;
+
+        ctx.globalAlpha =
+            p.life / 40;
+
+        ctx.fillStyle =
+            p.color;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            x,
+            y,
+            4,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fill();
+
+        ctx.globalAlpha = 1;
+    }
+}
+
+
+function loop() {
+
+    update();
+
+    draw();
+
+    requestAnimationFrame(
+        loop
+    );
+}
+
+
+/*
+============================================================
+START
+============================================================
+*/
+
+connect();
+
+loop();
 
 </script>
 
